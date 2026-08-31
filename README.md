@@ -1,48 +1,48 @@
-# Tabela — aplikacja z logowaniem i rolami (PHP + Apache + MySQL)
+# Tabela — Table App with Login and Roles (PHP + Apache + MySQL)
 
-Czysty stos LAMP — **żadnego Node.js, żadnego npm, żadnego kroku budowania**.
-Wystarczy skopiować pliki do katalogu serwowanego przez Apache.
+A pure LAMP stack — **no Node.js, no npm, no build step**. Just copy the files
+into a directory served by Apache and you're done.
 
-Aplikacja webowa wyświetlająca edytowalną tabelę (arkusz), z logowaniem
-i trzema rolami użytkowników:
+A web app that displays an editable table (spreadsheet), with login
+and three user roles:
 
-- **Administrator** — zarządza kolumnami tabeli (tekst / liczba / lista wyboru z opcjami)
-  i użytkownikami (loginy, hasła, role).
-- **Edytor** — może dodawać wiersze i edytować wartości komórek, ale nie ma dostępu
-  do ustawień (kolumny, użytkownicy).
-- **Przeglądający** — widzi tabelę wyłącznie w trybie odczytu, bez możliwości zmian.
+- **Admin** — manages table columns (text / number / dropdown with defined options)
+  and users (logins, passwords, roles).
+- **Editor** — can add rows and edit cell values, but has no access
+  to settings (columns, users).
+- **Viewer** — sees the table in read-only mode, with no ability to make changes.
 
-Wszystkie uprawnienia są wymuszane po stronie serwera (PHP), nie tylko ukrywane w interfejsie.
+All permissions are enforced server-side (in PHP), not just hidden in the UI.
 
-## Stos technologiczny
+## Tech stack
 
-- **Backend:** czysty PHP (bez frameworków, bez Composera) — PDO do MySQL
-- **Baza danych:** MySQL / MariaDB (Twoja istniejąca instancja)
-- **Sesje logowania:** natywne sesje PHP (pliki na serwerze)
-- **Hasła:** `password_hash()` / `password_verify()` (bcrypt)
-- **Frontend:** zwykły HTML/CSS/JS bez frameworków
-- **Serwer WWW:** Apache z `mod_php` (lub `php-fpm`, patrz niżej)
+- **Backend:** plain PHP (no frameworks, no Composer) — PDO for MySQL
+- **Database:** MySQL / MariaDB (your existing instance)
+- **Login sessions:** native PHP sessions (server-side files)
+- **Passwords:** `password_hash()` / `password_verify()` (bcrypt)
+- **Frontend:** plain HTML/CSS/JS, no frameworks
+- **Web server:** Apache with `mod_php` (or `php-fpm`, see below)
 
 ---
 
-## 1. Wymagania na serwerze
+## 1. Server requirements
 
 ```bash
 sudo apt update
 sudo apt install apache2 php libapache2-mod-php php-mysql
 ```
 
-Sprawdź czy działa:
+Check that it's working:
 ```bash
 php -v
 apache2 -v
 ```
 
-`php-mysql` to rozszerzenie PDO/mysqli — bez niego PHP nie połączy się z Twoją bazą.
+`php-mysql` is the PDO/mysqli extension — without it PHP can't connect to your database.
 
 ---
 
-## 2. Przygotowanie bazy danych MySQL
+## 2. Setting up the MySQL database
 
 ```bash
 sudo mysql -u root -p
@@ -50,55 +50,56 @@ sudo mysql -u root -p
 
 ```sql
 CREATE DATABASE tabela_app CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'tabela_user'@'localhost' IDENTIFIED BY 'WSTAW-TU-SILNE-HASLO';
+CREATE USER 'tabela_user'@'localhost' IDENTIFIED BY 'PUT-A-STRONG-PASSWORD-HERE';
 GRANT ALL PRIVILEGES ON tabela_app.* TO 'tabela_user'@'localhost';
 FLUSH PRIVILEGES;
 EXIT;
 ```
 
-Aplikacja sama utworzy potrzebne tabele (`users`, `columns`, `rows`, `cells`)
-przy pierwszym żądaniu — nie trzeba nic ręcznie zakładać.
+The app creates the required tables (`users`, `columns`, `rows`, `cells`)
+automatically on the first request — nothing to set up manually.
 
 ---
 
-## 3. Wgranie plików
+## 3. Uploading the files
 
 ```bash
 cd /var/www/html
 sudo git clone https://github.com/grubassound/tabela-app.git tabela-app
-# (albo skopiuj pliki w inny sposób, np. scp / rsync)
+# (or copy the files another way, e.g. scp / rsync)
 
 cd tabela-app
 sudo cp config.php.example config.php
 sudo nano config.php
 ```
 
-W `config.php` uzupełnij dane do bazy (te same, co w kroku 2):
+In `config.php`, fill in your database credentials (same as in step 2):
 
 ```php
 define('DB_HOST', 'localhost');
 define('DB_PORT', '3306');
 define('DB_NAME', 'tabela_app');
 define('DB_USER', 'tabela_user');
-define('DB_PASSWORD', 'WSTAW-TU-SILNE-HASLO');
+define('DB_PASSWORD', 'PUT-A-STRONG-PASSWORD-HERE');
 ```
 
-Ustaw właściciela plików na użytkownika Apache:
+Set the file owner to the Apache user:
 ```bash
 sudo chown -R www-data:www-data /var/www/html/tabela-app
 ```
 
 ---
 
-## 4. Konfiguracja Apache
+## 4. Apache configuration
 
-### a) Włącz obsługę `.htaccess` dla katalogu aplikacji
+### a) Enable `.htaccess` support for the app directory
 
-Domyślnie Apache **ignoruje pliki `.htaccess`**, a te w tym projekcie blokują
-dostęp z zewnątrz do `config.php` i katalogu `includes/` (gdzie są dane do bazy
-i logika łączenia z nią) — **to ważne dla bezpieczeństwa**, więc koniecznie to włącz.
+By default Apache **ignores `.htaccess` files**, and the ones in this project
+block outside access to `config.php` and the `includes/` folder (where your
+database credentials and connection logic live) — **this matters for security**,
+so make sure to enable it.
 
-Dodaj do `/etc/apache2/apache2.conf` (albo do konfiguracji swojego VirtualHosta):
+Add this to `/etc/apache2/apache2.conf` (or to your VirtualHost config):
 
 ```apache
 <Directory /var/www/html/tabela-app>
@@ -107,20 +108,20 @@ Dodaj do `/etc/apache2/apache2.conf` (albo do konfiguracji swojego VirtualHosta)
 </Directory>
 ```
 
-### b) Włącz moduł PHP (zwykle już włączony po instalacji `libapache2-mod-php`)
+### b) Enable the PHP module (usually already enabled after installing `libapache2-mod-php`)
 
 ```bash
-sudo a2enmod php8.3    # numer wersji zależny od Twojej instalacji PHP
+sudo a2enmod php8.3    # version number depends on your PHP install
 sudo systemctl restart apache2
 ```
 
-### c) Jeśli chcesz, żeby aplikacja była dostępna jako osobna strona (VirtualHost)
+### c) If you want the app on its own site (VirtualHost)
 
-Utwórz `/etc/apache2/sites-available/tabela-app.conf`:
+Create `/etc/apache2/sites-available/tabela-app.conf`:
 
 ```apache
 <VirtualHost *:80>
-    ServerName tabela.twojadomena.pl
+    ServerName tabela.yourdomain.com
     DocumentRoot /var/www/html/tabela-app
 
     <Directory /var/www/html/tabela-app>
@@ -138,84 +139,84 @@ sudo a2ensite tabela-app.conf
 sudo systemctl reload apache2
 ```
 
-### d) Jeśli chcesz na razie dostęp tylko po IP (bez domeny)
+### d) If you just want IP-only access for now (no domain)
 
-Nic dodatkowego nie musisz robić — jeśli pliki leżą w `/var/www/html/tabela-app`
-i masz włączone `AllowOverride All` jak w punkcie (a), aplikacja jest już dostępna pod:
+Nothing extra needed — as long as the files are in `/var/www/html/tabela-app`
+and `AllowOverride All` is enabled as in step (a), the app is already reachable at:
 
 ```
-http://TWOJE-IP-SERWERA/tabela-app/login.html
+http://YOUR-SERVER-IP/tabela-app/login.html
 ```
 
-(Apache domyślnie nasłuchuje na porcie 80, więc port nie jest nawet potrzebny w adresie.)
+(Apache listens on port 80 by default, so no port is even needed in the URL.)
 
 ---
 
-## 5. Pierwsze uruchomienie
+## 5. First run
 
-Wejdź w przeglądarce na `login.html` (np. `http://TWOJE-IP/tabela-app/login.html`).
+Open `login.html` in your browser (e.g. `http://YOUR-IP/tabela-app/login.html`).
 
-Domyślny administrator (tworzony automatycznie przy pierwszym żądaniu):
-- **login:** `admin`
-- **hasło:** `admin123`
+Default admin account (created automatically on the first request):
+- **username:** `admin`
+- **password:** `admin123`
 
-⚠️ **Koniecznie zmień to hasło od razu po pierwszym zalogowaniu** — przycisk
-„Zmień hasło” w prawym górnym rogu po zalogowaniu.
+⚠️ **Make sure to change this password right after your first login** — use the
+"Change password" button in the top right corner once logged in.
 
 ---
 
-## Struktura projektu
+## Project structure
 
 ```
 tabela-app/
-├── config.php.example    ← szablon konfiguracji (skopiuj jako config.php)
-├── .htaccess               ← blokuje dostęp do config.php z zewnątrz
+├── config.php.example    ← config template (copy as config.php)
+├── .htaccess               ← blocks outside access to config.php
 ├── includes/
-│   ├── .htaccess            ← blokuje CAŁY katalog z zewnątrz
-│   ├── db.php                 ← połączenie PDO + tworzenie tabel
-│   ├── auth.php                ← funkcje pomocnicze (sesje, JSON, uprawnienia)
-│   └── bootstrap.php            ← dołączany na starcie każdego pliku w api/
+│   ├── .htaccess            ← blocks the WHOLE folder from outside access
+│   ├── db.php                 ← PDO connection + table creation
+│   ├── auth.php                ← helper functions (sessions, JSON, permissions)
+│   └── bootstrap.php            ← included at the top of every file in api/
 ├── api/
 │   ├── login.php     (POST)
 │   ├── logout.php    (POST)
-│   ├── me.php         (GET, PUT — zmiana hasła)
+│   ├── me.php         (GET, PUT — change password)
 │   ├── table.php       (GET)
 │   ├── rows.php         (POST, DELETE ?id=)
 │   ├── cells.php          (PUT)
 │   ├── columns.php         (POST, PUT ?id=, DELETE ?id=)
 │   └── users.php            (GET, POST, PUT ?id=, DELETE ?id=)
 ├── login.html
-├── index.html          ← widok tabeli
-├── admin.html            ← panel administratora
+├── index.html          ← table view
+├── admin.html            ← admin panel
 ├── css/style.css
 └── js/{login,app,admin}.js
 ```
 
-## Bezpieczeństwo — o czym pamiętać
+## Security — things to keep in mind
 
-- **`config.php` zawiera hasło do bazy danych** — nigdy nie commituj go do gita
-  (jest w `.gitignore`) i upewnij się, że `.htaccess` faktycznie blokuje do niego
-  dostęp (patrz punkt 4a — bez `AllowOverride All` `.htaccess` nic nie da).
-- Docelowo warto dołożyć **HTTPS** (Let's Encrypt / certbot), żeby hasła logowania
-  nie leciały po sieci jawnym tekstem:
+- **`config.php` contains your database password** — never commit it to git
+  (it's in `.gitignore`) and make sure `.htaccess` actually blocks access to it
+  (see step 4a — without `AllowOverride All`, `.htaccess` does nothing).
+- You'll want to add **HTTPS** eventually (Let's Encrypt / certbot), so login
+  passwords don't travel over the network in plain text:
   ```bash
   sudo apt install certbot python3-certbot-apache
-  sudo certbot --apache -d tabela.twojadomena.pl
+  sudo certbot --apache -d tabela.yourdomain.com
   ```
-  Po włączeniu HTTPS ustaw w `config.php`:
+  After enabling HTTPS, set this in `config.php`:
   ```php
   define('SESSION_SECURE_COOKIE', true);
   ```
 
-## Backup danych
+## Backing up your data
 
 ```bash
 mysqldump -u tabela_user -p tabela_app > backup-tabela-app-$(date +%F).sql
 ```
 
-## Rozszerzenia, o które możesz poprosić
+## Possible extensions you can ask for
 
-- Historia zmian komórek (kto i kiedy zmienił wartość).
-- Sortowanie/filtrowanie kolumn, eksport do CSV/Excel/PDF.
-- Możliwość przeciągania i zmiany kolejności kolumn/wierszy.
-- Konfiguracja HTTPS i domeny pod konkretny adres, który wybierzesz.
+- Cell change history (who changed what, and when).
+- Column sorting/filtering, CSV/Excel/PDF export.
+- Drag-and-drop reordering of columns/rows.
+- HTTPS and domain setup for your specific address.
