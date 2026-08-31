@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ustawienia — Tabela</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar__brand">Tabela</div>
+  <div class="topbar__user">
+    <span class="role-pill">Administrator</span>
+    <span id="usernameLabel"></span>
+    <a class="btn btn--ghost" href="/index.html">← Wróć do tabeli</a>
+    <button class="btn btn--ghost" id="logoutBtn">Wyloguj</button>
+  </div>
+</div>
+
+<main>
+  <div class="page-header"><h1>Ustawienia</h1></div>
+
+  <div class="panel">
+    <h2>Kolumny tabeli</h2>
+    <div id="columnsList"></div>
+    <form class="inline-form" id="addColumnForm">
+      <div class="field">
+        <label for="colName">Nazwa kolumny</label>
+        <input type="text" id="colName" required>
+      </div>
+      <div class="field">
+        <label for="colType">Typ</label>
+        <select id="colType">
+          <option value="text">Tekst</option>
+          <option value="number">Liczba</option>
+          <option value="select">Lista wyboru</option>
+        </select>
+      </div>
+      <div class="field" id="colOptionsField" style="display:none; flex-basis:100%;">
+        <label for="colOptions">Opcje do wyboru (jedna na linię)</label>
+        <textarea id="colOptions" rows="3" style="width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:8px; font:inherit; font-size:14px; background:var(--bg);" placeholder="np.&#10;Sprawne&#10;Do naprawy&#10;Wyłączone"></textarea>
+      </div>
+      <button type="submit" class="btn btn--primary">Dodaj kolumnę</button>
+    </form>
+  </div>
+
+  <div class="panel">
+    <h2>Użytkownicy</h2>
+    <div id="usersList"></div>
+    <form class="inline-form" id="addUserForm">
+      <div class="field">
+        <label for="userLogin">Login</label>
+        <input type="text" id="userLogin" required>
+      </div>
+      <div class="field">
+        <label for="userPassword">Hasło</label>
+        <input type="password" id="userPassword" required>
+      </div>
+      <div class="field">
+        <label for="userRole">Rola</label>
+        <select id="userRole">
+          <option value="viewer">Przeglądający</option>
+          <option value="editor">Edytor</option>
+          <option value="admin">Administrator</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn--primary">Dodaj użytkownika</button>
+    </form>
+  </div>
+</main>
+
+<script src="/js/admin.js"></script>
+</body>
+</html>

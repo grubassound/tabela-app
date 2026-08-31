@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tabela</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar__brand">Tabela</div>
+  <div class="topbar__user">
+    <span class="role-pill" id="rolePill">—</span>
+    <span id="usernameLabel"></span>
+    <a class="btn btn--ghost" id="adminLink" href="/admin.html" style="display:none;">Ustawienia</a>
+    <button class="btn btn--ghost" id="pwdBtn">Zmień hasło</button>
+    <button class="btn btn--ghost" id="logoutBtn">Wyloguj</button>
+  </div>
+</div>
+
+<div id="pwdModal" style="display:none; position:fixed; inset:0; background:rgba(28,30,28,.4); align-items:center; justify-content:center; z-index:10;">
+  <div class="login-card" style="max-width:340px;">
+    <h1 style="font-size:19px;">Zmień hasło</h1>
+    <div class="error-msg" id="pwdError"></div>
+    <form id="pwdForm">
+      <div class="field">
+        <label for="currentPassword">Obecne hasło</label>
+        <input type="password" id="currentPassword" required>
+      </div>
+      <div class="field">
+        <label for="newPassword">Nowe hasło (min. 6 znaków)</label>
+        <input type="password" id="newPassword" required minlength="6">
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button type="submit" class="btn btn--primary" style="flex:1;">Zapisz</button>
+        <button type="button" class="btn" id="pwdCancel">Anuluj</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<main>
+  <div class="page-header">
+    <h1>Arkusz danych</h1>
+    <div class="toolbar">
+      <button class="btn btn--primary" id="addRowBtn" style="display:none;">+ Dodaj wiersz</button>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="sheet" id="sheetTable">
+      <thead><tr id="headRow"></tr></thead>
+      <tbody id="bodyRows"></tbody>
+    </table>
+    <div class="empty-state" id="emptyState" style="display:none;">Brak wierszy. Dodaj pierwszy wpis.</div>
+  </div>
+</main>
+
+<script src="/js/app.js"></script>
+</body>
+</html>

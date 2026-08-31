@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Logowanie — Tabela</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="login-shell">
+  <div class="login-card">
+    <h1>Witaj z powrotem</h1>
+    <p class="sub">Zaloguj się, aby zobaczyć tabelę.</p>
+    <div class="error-msg" id="errorMsg"></div>
+    <form id="loginForm">
+      <div class="field">
+        <label for="username">Login</label>
+        <input type="text" id="username" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="password">Hasło</label>
+        <input type="password" id="password" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="btn btn--primary" style="width:100%;" id="loginBtn">Zaloguj się</button>
+    </form>
+  </div>
+</div>
+<script src="/js/login.js"></script>
+</body>
+</html>
