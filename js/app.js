@@ -1,9 +1,9 @@
 let state = { columns: [], rows: [], role: 'viewer' };
 
 async function init() {
-  const meRes = await fetch('/api/me');
+  const meRes = await fetch('api/me.php');
   const me = await meRes.json();
-  if (!me.user) { window.location.href = '/login.html'; return; }
+  if (!me.user) { window.location.href = 'login.html'; return; }
 
   document.getElementById('usernameLabel').textContent = me.user.username;
   document.getElementById('rolePill').textContent = roleLabel(me.user.role);
@@ -20,8 +20,8 @@ function roleLabel(role) {
 }
 
 async function loadTable() {
-  const res = await fetch('/api/table');
-  if (res.status === 401) { window.location.href = '/login.html'; return; }
+  const res = await fetch('api/table.php');
+  if (res.status === 401) { window.location.href = 'login.html'; return; }
   state = await res.json();
   render();
 }
@@ -46,11 +46,7 @@ function render() {
   }
 
   bodyRows.innerHTML = '';
-  if (state.rows.length === 0) {
-    emptyState.style.display = 'block';
-  } else {
-    emptyState.style.display = 'none';
-  }
+  emptyState.style.display = state.rows.length === 0 ? 'block' : 'none';
 
   state.rows.forEach(row => {
     const tr = document.createElement('tr');
@@ -105,7 +101,7 @@ function render() {
 async function saveCell(rowId, columnId, input) {
   const prevValue = input.dataset.prev !== undefined ? input.dataset.prev : input.value;
   const value = input.value;
-  const res = await fetch('/api/cells', {
+  const res = await fetch('api/cells.php', {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ rowId, columnId, value })
@@ -121,20 +117,20 @@ async function saveCell(rowId, columnId, input) {
 
 async function deleteRow(rowId) {
   if (!confirm('Usunąć ten wiersz?')) return;
-  const res = await fetch(`/api/rows/${rowId}`, { method: 'DELETE' });
+  const res = await fetch(`api/rows.php?id=${rowId}`, { method: 'DELETE' });
   if (!res.ok) { alert('Nie udało się usunąć wiersza'); return; }
   await loadTable();
 }
 
 document.getElementById('addRowBtn').addEventListener('click', async () => {
-  const res = await fetch('/api/rows', { method: 'POST' });
+  const res = await fetch('api/rows.php', { method: 'POST' });
   if (!res.ok) { alert('Nie udało się dodać wiersza'); return; }
   await loadTable();
 });
 
 document.getElementById('logoutBtn').addEventListener('click', async () => {
-  await fetch('/api/logout', { method: 'POST' });
-  window.location.href = '/login.html';
+  await fetch('api/logout.php', { method: 'POST' });
+  window.location.href = 'login.html';
 });
 
 const pwdModal = document.getElementById('pwdModal');
@@ -150,7 +146,7 @@ document.getElementById('pwdForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const currentPassword = document.getElementById('currentPassword').value;
   const newPassword = document.getElementById('newPassword').value;
-  const res = await fetch('/api/me/password', {
+  const res = await fetch('api/me.php', {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ currentPassword, newPassword })

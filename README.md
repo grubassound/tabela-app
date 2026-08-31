@@ -1,4 +1,7 @@
-# Tabela — aplikacja z logowaniem i rolami
+# Tabela — aplikacja z logowaniem i rolami (PHP + Apache + MySQL)
+
+Czysty stos LAMP — **żadnego Node.js, żadnego npm, żadnego kroku budowania**.
+Wystarczy skopiować pliki do katalogu serwowanego przez Apache.
 
 Aplikacja webowa wyświetlająca edytowalną tabelę (arkusz), z logowaniem
 i trzema rolami użytkowników:
@@ -9,45 +12,41 @@ i trzema rolami użytkowników:
   do ustawień (kolumny, użytkownicy).
 - **Przeglądający** — widzi tabelę wyłącznie w trybie odczytu, bez możliwości zmian.
 
-Wszystkie uprawnienia są wymuszane po stronie serwera (nie tylko ukrywane w interfejsie).
+Wszystkie uprawnienia są wymuszane po stronie serwera (PHP), nie tylko ukrywane w interfejsie.
 
 ## Stos technologiczny
 
-- **Backend:** Node.js + Express
-- **Baza danych:** MySQL / MariaDB (korzysta z istniejącej instancji na Twoim serwerze)
-- **Sesje logowania:** trzymane w tej samej bazie MySQL (tabela `sessions`, tworzona automatycznie)
-- **Hasła:** hashowane przez `bcryptjs`
-- **Frontend:** zwykły HTML/CSS/JS bez frameworków, w katalogu `public/`
-- **Serwer WWW:** Apache jako reverse proxy przed aplikacją Node.js (opcjonalnie —
-  na start można też wejść bezpośrednio po `IP:port`)
+- **Backend:** czysty PHP (bez frameworków, bez Composera) — PDO do MySQL
+- **Baza danych:** MySQL / MariaDB (Twoja istniejąca instancja)
+- **Sesje logowania:** natywne sesje PHP (pliki na serwerze)
+- **Hasła:** `password_hash()` / `password_verify()` (bcrypt)
+- **Frontend:** zwykły HTML/CSS/JS bez frameworków
+- **Serwer WWW:** Apache z `mod_php` (lub `php-fpm`, patrz niżej)
 
 ---
 
 ## 1. Wymagania na serwerze
 
-- Node.js 18+ (sprawdź: `node -v`; jeśli nie masz, patrz sekcja niżej)
-- MySQL lub MariaDB już zainstalowane (masz)
-- Apache już zainstalowany (masz)
-
-### Instalacja Node.js (jeśli jeszcze nie masz)
-
 ```bash
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt-get install -y nodejs
-node -v
+sudo apt update
+sudo apt install apache2 php libapache2-mod-php php-mysql
 ```
+
+Sprawdź czy działa:
+```bash
+php -v
+apache2 -v
+```
+
+`php-mysql` to rozszerzenie PDO/mysqli — bez niego PHP nie połączy się z Twoją bazą.
 
 ---
 
 ## 2. Przygotowanie bazy danych MySQL
 
-Zaloguj się do MySQL na serwerze (jako root lub użytkownik z uprawnieniami do tworzenia baz):
-
 ```bash
 sudo mysql -u root -p
 ```
-
-I wykonaj:
 
 ```sql
 CREATE DATABASE tabela_app CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -57,117 +56,77 @@ FLUSH PRIVILEGES;
 EXIT;
 ```
 
-Aplikacja sama utworzy potrzebne tabele (`users`, `columns`, `rows`, `cells`, `sessions`)
-przy pierwszym uruchomieniu — nie trzeba nic więcej ręcznie zakładać.
+Aplikacja sama utworzy potrzebne tabele (`users`, `columns`, `rows`, `cells`)
+przy pierwszym żądaniu — nie trzeba nic ręcznie zakładać.
 
 ---
 
-## 3. Wgranie i konfiguracja aplikacji
+## 3. Wgranie plików
 
 ```bash
-# Sklonuj repozytorium (albo skopiuj pliki na serwer w inny sposób)
-git clone https://github.com/grubassound/tabela-app.git
+cd /var/www/html
+sudo git clone https://github.com/grubassound/tabela-app.git tabela-app
+# (albo skopiuj pliki w inny sposób, np. scp / rsync)
+
 cd tabela-app
-
-# Zainstaluj zależności
-npm install --omit=dev
-
-# Skopiuj szablon konfiguracji i uzupełnij dane
-cp .env.example .env
-nano .env
+sudo cp config.php.example config.php
+sudo nano config.php
 ```
 
-W pliku `.env` uzupełnij:
+W `config.php` uzupełnij dane do bazy (te same, co w kroku 2):
 
-```env
-DB_HOST=localhost
-DB_PORT=3306
-DB_USER=tabela_user
-DB_PASSWORD=WSTAW-TU-SILNE-HASLO       # to samo, które ustawiłeś w kroku 2
-DB_NAME=tabela_app
-SESSION_SECRET=WSTAW-LOSOWY-DLUGI-CIAG-ZNAKOW
-PORT=3001
+```php
+define('DB_HOST', 'localhost');
+define('DB_PORT', '3306');
+define('DB_NAME', 'tabela_app');
+define('DB_USER', 'tabela_user');
+define('DB_PASSWORD', 'WSTAW-TU-SILNE-HASLO');
 ```
 
-Losowy sekret sesji możesz wygenerować komendą:
+Ustaw właściciela plików na użytkownika Apache:
 ```bash
-node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
-```
-
-Port `3001` możesz zmienić na dowolny wolny port — upewnij się tylko, że nie koliduje
-z Apache (który zwykle zajmuje 80/443) ani z innymi usługami.
-
----
-
-## 4. Uruchomienie aplikacji
-
-### Szybki test
-
-```bash
-npm start
-```
-
-Przy pierwszym uruchomieniu w logu zobaczysz:
-```
-Utworzono domyślnego administratora: admin / admin123 (ZMIEŃ HASŁO PO PIERWSZYM LOGOWANIU!)
-Serwer działa na porcie 3001 — http://localhost:3001
-```
-
-⚠️ **Koniecznie zmień hasło administratora od razu po pierwszym zalogowaniu** — przycisk
-„Zmień hasło” w prawym górnym rogu po zalogowaniu.
-
-### Uruchomienie na stałe (pm2)
-
-Żeby aplikacja działała w tle i wstawała automatycznie po restarcie serwera:
-
-```bash
-sudo npm install -g pm2
-pm2 start server.js --name tabela-app
-pm2 save
-pm2 startup      # wykonaj komendę, którą pm2 Ci wypisze
-```
-
-Przydatne komendy:
-```bash
-pm2 status              # sprawdź czy działa
-pm2 logs tabela-app     # podgląd logów
-pm2 restart tabela-app  # restart po zmianach w kodzie
+sudo chown -R www-data:www-data /var/www/html/tabela-app
 ```
 
 ---
 
-## 5. Dostęp — na razie po IP i porcie
+## 4. Konfiguracja Apache
 
-Skoro chcesz na start dostęp bezpośrednio po adresie IP serwera i porcie, wystarczy:
+### a) Włącz obsługę `.htaccess` dla katalogu aplikacji
 
-1. Otwórz port w firewallu (jeśli używasz `ufw`):
-   ```bash
-   sudo ufw allow 3001/tcp
-   ```
-2. Wejdź w przeglądarce na: `http://TWOJE-IP-SERWERA:3001`
+Domyślnie Apache **ignoruje pliki `.htaccess`**, a te w tym projekcie blokują
+dostęp z zewnątrz do `config.php` i katalogu `includes/` (gdzie są dane do bazy
+i logika łączenia z nią) — **to ważne dla bezpieczeństwa**, więc koniecznie to włącz.
 
-To wszystko — Apache w ogóle nie musi być w to zaangażowany na tym etapie, bo Node.js
-sam obsługuje ruch HTTP na porcie 3001.
+Dodaj do `/etc/apache2/apache2.conf` (albo do konfiguracji swojego VirtualHosta):
 
-### Gdy zechcesz później podpiąć to pod domenę przez Apache
+```apache
+<Directory /var/www/html/tabela-app>
+    AllowOverride All
+    Require all granted
+</Directory>
+```
 
-Kiedy będziesz gotowy na dostęp przez `twojadomena.pl` (albo subdomenę) zamiast IP:port,
-Apache może działać jako reverse proxy przed aplikacją Node.js. Włącz potrzebne moduły:
+### b) Włącz moduł PHP (zwykle już włączony po instalacji `libapache2-mod-php`)
 
 ```bash
-sudo a2enmod proxy proxy_http
+sudo a2enmod php8.3    # numer wersji zależny od Twojej instalacji PHP
 sudo systemctl restart apache2
 ```
 
-I dodaj VirtualHost (np. `/etc/apache2/sites-available/tabela-app.conf`):
+### c) Jeśli chcesz, żeby aplikacja była dostępna jako osobna strona (VirtualHost)
+
+Utwórz `/etc/apache2/sites-available/tabela-app.conf`:
 
 ```apache
 <VirtualHost *:80>
     ServerName tabela.twojadomena.pl
+    DocumentRoot /var/www/html/tabela-app
 
-    ProxyPreserveHost On
-    ProxyPass / http://localhost:3001/
-    ProxyPassReverse / http://localhost:3001/
+    <Directory /var/www/html/tabela-app>
+        AllowOverride All
+        Require all granted
+    </Directory>
 
     ErrorLog ${APACHE_LOG_DIR}/tabela-app-error.log
     CustomLog ${APACHE_LOG_DIR}/tabela-app-access.log combined
@@ -179,14 +138,29 @@ sudo a2ensite tabela-app.conf
 sudo systemctl reload apache2
 ```
 
-Potem warto dorobić HTTPS (Let's Encrypt przez `certbot`), żeby hasła logowania
-nie leciały po sieci jawnym tekstem:
-```bash
-sudo apt install certbot python3-certbot-apache
-sudo certbot --apache -d tabela.twojadomena.pl
+### d) Jeśli chcesz na razie dostęp tylko po IP (bez domeny)
+
+Nic dodatkowego nie musisz robić — jeśli pliki leżą w `/var/www/html/tabela-app`
+i masz włączone `AllowOverride All` jak w punkcie (a), aplikacja jest już dostępna pod:
+
+```
+http://TWOJE-IP-SERWERA/tabela-app/login.html
 ```
 
-Daj znać, jak dojdziesz do tego etapu — pomogę skonfigurować konkretnie pod Twoją domenę.
+(Apache domyślnie nasłuchuje na porcie 80, więc port nie jest nawet potrzebny w adresie.)
+
+---
+
+## 5. Pierwsze uruchomienie
+
+Wejdź w przeglądarce na `login.html` (np. `http://TWOJE-IP/tabela-app/login.html`).
+
+Domyślny administrator (tworzony automatycznie przy pierwszym żądaniu):
+- **login:** `admin`
+- **hasło:** `admin123`
+
+⚠️ **Koniecznie zmień to hasło od razu po pierwszym zalogowaniu** — przycisk
+„Zmień hasło” w prawym górnym rogu po zalogowaniu.
 
 ---
 
@@ -194,25 +168,47 @@ Daj znać, jak dojdziesz do tego etapu — pomogę skonfigurować konkretnie pod
 
 ```
 tabela-app/
-├── server.js           ← serwer Express + API + reguły uprawnień (async, MySQL)
-├── database.js          ← pula połączeń MySQL, tworzenie tabel, domyślny admin
-├── .env.example          ← szablon konfiguracji (skopiuj jako .env)
-├── package.json
-└── public/
-    ├── login.html
-    ├── index.html         ← widok tabeli
-    ├── admin.html          ← panel administratora (kolumny + użytkownicy)
-    ├── css/style.css
-    └── js/
-        ├── login.js
-        ├── app.js
-        └── admin.js
+├── config.php.example    ← szablon konfiguracji (skopiuj jako config.php)
+├── .htaccess               ← blokuje dostęp do config.php z zewnątrz
+├── includes/
+│   ├── .htaccess            ← blokuje CAŁY katalog z zewnątrz
+│   ├── db.php                 ← połączenie PDO + tworzenie tabel
+│   ├── auth.php                ← funkcje pomocnicze (sesje, JSON, uprawnienia)
+│   └── bootstrap.php            ← dołączany na starcie każdego pliku w api/
+├── api/
+│   ├── login.php     (POST)
+│   ├── logout.php    (POST)
+│   ├── me.php         (GET, PUT — zmiana hasła)
+│   ├── table.php       (GET)
+│   ├── rows.php         (POST, DELETE ?id=)
+│   ├── cells.php          (PUT)
+│   ├── columns.php         (POST, PUT ?id=, DELETE ?id=)
+│   └── users.php            (GET, POST, PUT ?id=, DELETE ?id=)
+├── login.html
+├── index.html          ← widok tabeli
+├── admin.html            ← panel administratora
+├── css/style.css
+└── js/{login,app,admin}.js
 ```
+
+## Bezpieczeństwo — o czym pamiętać
+
+- **`config.php` zawiera hasło do bazy danych** — nigdy nie commituj go do gita
+  (jest w `.gitignore`) i upewnij się, że `.htaccess` faktycznie blokuje do niego
+  dostęp (patrz punkt 4a — bez `AllowOverride All` `.htaccess` nic nie da).
+- Docelowo warto dołożyć **HTTPS** (Let's Encrypt / certbot), żeby hasła logowania
+  nie leciały po sieci jawnym tekstem:
+  ```bash
+  sudo apt install certbot python3-certbot-apache
+  sudo certbot --apache -d tabela.twojadomena.pl
+  ```
+  Po włączeniu HTTPS ustaw w `config.php`:
+  ```php
+  define('SESSION_SECURE_COOKIE', true);
+  ```
 
 ## Backup danych
 
-Skoro dane są teraz w Twojej instancji MySQL, kopię zapasową rób tak jak dla
-reszty swoich baz na tym serwerze, np.:
 ```bash
 mysqldump -u tabela_user -p tabela_app > backup-tabela-app-$(date +%F).sql
 ```
@@ -222,4 +218,4 @@ mysqldump -u tabela_user -p tabela_app > backup-tabela-app-$(date +%F).sql
 - Historia zmian komórek (kto i kiedy zmienił wartość).
 - Sortowanie/filtrowanie kolumn, eksport do CSV/Excel/PDF.
 - Możliwość przeciągania i zmiany kolejności kolumn/wierszy.
-- Konfiguracja HTTPS i domeny przez Apache (patrz sekcja wyżej).
+- Konfiguracja HTTPS i domeny pod konkretny adres, który wybierzesz.

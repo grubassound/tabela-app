@@ -1,7 +1,7 @@
 (async function checkExistingSession() {
-  const res = await fetch('/api/me');
+  const res = await fetch('api/me.php');
   const data = await res.json();
-  if (data.user) window.location.href = '/index.html';
+  if (data.user) window.location.href = 'index.html';
 })();
 
 const form = document.getElementById('loginForm');
@@ -18,14 +18,14 @@ form.addEventListener('submit', async (e) => {
   const password = document.getElementById('password').value;
 
   try {
-    const res = await fetch('/api/login', {
+    const res = await fetch('api/login.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Błąd logowania');
-    window.location.href = '/index.html';
+    window.location.href = 'index.html';
   } catch (err) {
     errorMsg.textContent = err.message;
     errorMsg.classList.add('show');

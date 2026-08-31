@@ -2,20 +2,18 @@ const roleLabels = { admin: 'Administrator', editor: 'Edytor', viewer: 'Przeglą
 const typeLabels = { text: 'Tekst', number: 'Liczba', select: 'Lista wyboru' };
 
 async function init() {
-  const meRes = await fetch('/api/me');
+  const meRes = await fetch('api/me.php');
   const me = await meRes.json();
-  if (!me.user) { window.location.href = '/login.html'; return; }
-  if (me.user.role !== 'admin') { window.location.href = '/index.html'; return; }
+  if (!me.user) { window.location.href = 'login.html'; return; }
+  if (me.user.role !== 'admin') { window.location.href = 'index.html'; return; }
   document.getElementById('usernameLabel').textContent = me.user.username;
 
   await loadColumns();
   await loadUsers();
 }
 
-let editingColumnId = null;
-
 async function loadColumns() {
-  const res = await fetch('/api/table');
+  const res = await fetch('api/table.php');
   const data = await res.json();
   const list = document.getElementById('columnsList');
   list.innerHTML = '';
@@ -44,7 +42,7 @@ async function loadColumns() {
     delBtn.textContent = 'Usuń';
     delBtn.addEventListener('click', async () => {
       if (!confirm(`Usunąć kolumnę „${col.name}”? Usunie to też wszystkie dane w tej kolumnie.`)) return;
-      await fetch(`/api/columns/${col.id}`, { method: 'DELETE' });
+      await fetch(`api/columns.php?id=${col.id}`, { method: 'DELETE' });
       loadColumns();
     });
     row.appendChild(editBtn);
@@ -95,7 +93,7 @@ function toggleColumnEdit(col, row) {
     const name = form.querySelector('.edit-name').value.trim();
     const type = typeSelect.value;
     const options = form.querySelector('.edit-options').value.split('\n').map(s => s.trim()).filter(Boolean);
-    const res = await fetch(`/api/columns/${col.id}`, {
+    const res = await fetch(`api/columns.php?id=${col.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, type, options })
@@ -106,7 +104,7 @@ function toggleColumnEdit(col, row) {
 }
 
 async function loadUsers() {
-  const res = await fetch('/api/users');
+  const res = await fetch('api/users.php');
   const data = await res.json();
   const list = document.getElementById('usersList');
   list.innerHTML = '';
@@ -128,7 +126,7 @@ async function loadUsers() {
       select.appendChild(opt);
     });
     select.addEventListener('change', async () => {
-      await fetch(`/api/users/${u.id}`, {
+      await fetch(`api/users.php?id=${u.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ role: select.value })
@@ -140,7 +138,7 @@ async function loadUsers() {
     delBtn.textContent = 'Usuń';
     delBtn.addEventListener('click', async () => {
       if (!confirm(`Usunąć użytkownika „${u.username}”?`)) return;
-      const r = await fetch(`/api/users/${u.id}`, { method: 'DELETE' });
+      const r = await fetch(`api/users.php?id=${u.id}`, { method: 'DELETE' });
       if (!r.ok) { const d = await r.json(); alert(d.error); return; }
       loadUsers();
     });
@@ -174,7 +172,7 @@ document.getElementById('addColumnForm').addEventListener('submit', async (e) =>
     alert('Podaj co najmniej jedną opcję do wyboru');
     return;
   }
-  const res = await fetch('/api/columns', {
+  const res = await fetch('api/columns.php', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name, type, options })
@@ -192,7 +190,7 @@ document.getElementById('addUserForm').addEventListener('submit', async (e) => {
   const username = document.getElementById('userLogin').value.trim();
   const password = document.getElementById('userPassword').value;
   const role = document.getElementById('userRole').value;
-  const res = await fetch('/api/users', {
+  const res = await fetch('api/users.php', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, password, role })
@@ -204,8 +202,8 @@ document.getElementById('addUserForm').addEventListener('submit', async (e) => {
 });
 
 document.getElementById('logoutBtn').addEventListener('click', async () => {
-  await fetch('/api/logout', { method: 'POST' });
-  window.location.href = '/login.html';
+  await fetch('api/logout.php', { method: 'POST' });
+  window.location.href = 'login.html';
 });
 
 init();

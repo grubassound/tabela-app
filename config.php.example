@@ -1,0 +1,20 @@
+<?php
+/**
+ * Skopiuj ten plik jako config.php i uzupełnij prawdziwymi danymi.
+ * config.php NIE trafia do gita (jest w .gitignore) i jest zablokowany
+ * przed bezpośrednim dostępem przez przeglądarkę (patrz .htaccess).
+ */
+
+// --- Połączenie z bazą MySQL / MariaDB ---
+define('DB_HOST', 'localhost');
+define('DB_PORT', '3306');
+define('DB_NAME', 'tabela_app');
+define('DB_USER', 'tabela_user');
+define('DB_PASSWORD', 'wpisz-tu-prawdziwe-haslo');
+
+// --- Sesje logowania ---
+// Czas ważności sesji w sekundach (12h)
+define('SESSION_LIFETIME', 60 * 60 * 12);
+
+// Ustaw na true, gdy aplikacja działa pod HTTPS (zalecane na produkcji)
+define('SESSION_SECURE_COOKIE', false);
