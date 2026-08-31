@@ -1,69 +1,76 @@
-const Database = require('better-sqlite3');
+require('dotenv').config();
+const mysql = require('mysql2/promise');
 const bcrypt = require('bcryptjs');
-const path = require('path');
 
-const db = new Database(path.join(__dirname, 'data.sqlite'));
-db.pragma('journal_mode = WAL');
-db.pragma('foreign_keys = ON');
+const pool = mysql.createPool({
+  host: process.env.DB_HOST || 'localhost',
+  port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 3306,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  waitForConnections: true,
+  connectionLimit: 10,
+  charset: 'utf8mb4_unicode_ci'
+});
 
-db.exec(`
-CREATE TABLE IF NOT EXISTS users (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  username TEXT UNIQUE NOT NULL,
-  password_hash TEXT NOT NULL,
-  role TEXT NOT NULL CHECK(role IN ('admin','editor','viewer')),
-  created_at TEXT DEFAULT (datetime('now'))
-);
+async function init() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS users (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      username VARCHAR(191) NOT NULL UNIQUE,
+      password_hash VARCHAR(255) NOT NULL,
+      role ENUM('admin','editor','viewer') NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+  `);
 
-CREATE TABLE IF NOT EXISTS columns (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT NOT NULL,
-  type TEXT NOT NULL DEFAULT 'text' CHECK(type IN ('text','number','select')),
-  options TEXT DEFAULT NULL,
-  order_index INTEGER NOT NULL DEFAULT 0
-);
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS \`columns\` (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      name VARCHAR(191) NOT NULL,
+      type ENUM('text','number','select') NOT NULL DEFAULT 'text',
+      options TEXT DEFAULT NULL,
+      order_index INT NOT NULL DEFAULT 0
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+  `);
 
-CREATE TABLE IF NOT EXISTS rows (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  order_index INTEGER NOT NULL DEFAULT 0,
-  created_by INTEGER,
-  created_at TEXT DEFAULT (datetime('now')),
-  FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
-);
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS \`rows\` (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      order_index INT NOT NULL DEFAULT 0,
+      created_by INT DEFAULT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+  `);
 
-CREATE TABLE IF NOT EXISTS cells (
-  row_id INTEGER NOT NULL,
-  column_id INTEGER NOT NULL,
-  value TEXT DEFAULT '',
-  updated_by INTEGER,
-  updated_at TEXT DEFAULT (datetime('now')),
-  PRIMARY KEY (row_id, column_id),
-  FOREIGN KEY (row_id) REFERENCES rows(id) ON DELETE CASCADE,
-  FOREIGN KEY (column_id) REFERENCES columns(id) ON DELETE CASCADE
-);
-`);
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS cells (
+      row_id INT NOT NULL,
+      column_id INT NOT NULL,
+      value TEXT,
+      updated_by INT DEFAULT NULL,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      PRIMARY KEY (row_id, column_id),
+      FOREIGN KEY (row_id) REFERENCES \`rows\`(id) ON DELETE CASCADE,
+      FOREIGN KEY (column_id) REFERENCES \`columns\`(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+  `);
 
-// Migracja: dodaj kolumnę "options" jeśli baza powstała przed wprowadzeniem list wyboru
-const columnsInfo = db.prepare("PRAGMA table_info(columns)").all();
-if (!columnsInfo.some(c => c.name === 'options')) {
-  db.exec("ALTER TABLE columns ADD COLUMN options TEXT DEFAULT NULL");
+  // Domyślny administrator (tworzony tylko raz, jeśli tabela users jest pusta)
+  const [userCountRows] = await pool.query('SELECT COUNT(*) AS c FROM users');
+  if (userCountRows[0].c === 0) {
+    const hash = await bcrypt.hash('admin123', 10);
+    await pool.query('INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)', ['admin', hash, 'admin']);
+    console.log('Utworzono domyślnego administratora: admin / admin123 (ZMIEŃ HASŁO PO PIERWSZYM LOGOWANIU!)');
+  }
+
+  // Domyślne kolumny startowe, jeśli tabela columns jest pusta
+  const [colCountRows] = await pool.query('SELECT COUNT(*) AS c FROM `columns`');
+  if (colCountRows[0].c === 0) {
+    await pool.query('INSERT INTO `columns` (name, type, order_index) VALUES (?, ?, ?)', ['Nazwa', 'text', 0]);
+    await pool.query('INSERT INTO `columns` (name, type, order_index) VALUES (?, ?, ?)', ['Wartość', 'number', 1]);
+  }
 }
 
-// Domyślny administrator (tworzony tylko raz, jeśli baza jest pusta)
-const userCount = db.prepare('SELECT COUNT(*) AS c FROM users').get().c;
-if (userCount === 0) {
-  const hash = bcrypt.hashSync('admin123', 10);
-  db.prepare('INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)')
-    .run('admin', hash, 'admin');
-  console.log('Utworzono domyślnego administratora: admin / admin123 (ZMIEŃ HASŁO PO PIERWSZYM LOGOWANIU!)');
-}
-
-// Domyślne kolumny startowe, jeśli tabela jest pusta
-const colCount = db.prepare('SELECT COUNT(*) AS c FROM columns').get().c;
-if (colCount === 0) {
-  const insertCol = db.prepare('INSERT INTO columns (name, type, order_index) VALUES (?, ?, ?)');
-  insertCol.run('Nazwa', 'text', 0);
-  insertCol.run('Wartość', 'number', 1);
-}
-
-module.exports = db;
+module.exports = { pool, init };
