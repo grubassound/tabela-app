@@ -3,6 +3,7 @@
 
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/snapshot.php';
 
 session_set_cookie_params([
     'lifetime' => SESSION_LIFETIME,

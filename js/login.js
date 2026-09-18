@@ -12,7 +12,7 @@ form.addEventListener('submit', async (e) => {
   e.preventDefault();
   errorMsg.classList.remove('show');
   loginBtn.disabled = true;
-  loginBtn.textContent = 'Logowanie…';
+  loginBtn.textContent = t('loginInProgress');
 
   const username = document.getElementById('username').value.trim();
   const password = document.getElementById('password').value;
@@ -24,12 +24,12 @@ form.addEventListener('submit', async (e) => {
       body: JSON.stringify({ username, password })
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Błąd logowania');
+    if (!res.ok) throw new Error(apiErrorMessage(data, 'errLoginFallback'));
     window.location.href = 'index.html';
   } catch (err) {
     errorMsg.textContent = err.message;
     errorMsg.classList.add('show');
     loginBtn.disabled = false;
-    loginBtn.textContent = 'Zaloguj się';
+    loginBtn.textContent = t('loginSubmit');
   }
 });

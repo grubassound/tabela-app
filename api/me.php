@@ -14,10 +14,10 @@ if ($method === 'PUT') {
     $newPassword = $body['newPassword'] ?? '';
 
     if ($currentPassword === '' || $newPassword === '') {
-        send_json(['error' => 'Podaj obecne i nowe hasło'], 400);
+        send_error('CURRENT_NEW_PASSWORD_REQUIRED', 'Please provide your current and new password.', 400);
     }
     if (strlen($newPassword) < 6) {
-        send_json(['error' => 'Nowe hasło musi mieć co najmniej 6 znaków'], 400);
+        send_error('PASSWORD_TOO_SHORT', 'The new password must be at least 6 characters long.', 400);
     }
 
     $stmt = $pdo->prepare('SELECT * FROM users WHERE id = ?');
@@ -25,7 +25,7 @@ if ($method === 'PUT') {
     $row = $stmt->fetch();
 
     if (!$row || !password_verify($currentPassword, $row['password_hash'])) {
-        send_json(['error' => 'Obecne hasło jest nieprawidłowe'], 401);
+        send_error('CURRENT_PASSWORD_INVALID', 'The current password is incorrect.', 401);
     }
 
     $hash = password_hash($newPassword, PASSWORD_BCRYPT);
@@ -35,4 +35,4 @@ if ($method === 'PUT') {
     send_json(['ok' => true]);
 }
 
-send_json(['error' => 'Niedozwolona metoda'], 405);
+send_error('METHOD_NOT_ALLOWED', 'This method is not allowed.', 405);

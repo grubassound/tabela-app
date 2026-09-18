@@ -21,13 +21,13 @@ if ($method === 'POST') {
     $role = $body['role'] ?? '';
 
     if ($username === '' || $password === '' || !in_array($role, ['admin', 'editor', 'viewer'], true)) {
-        send_json(['error' => 'Nieprawidłowe dane'], 400);
+        send_error('INVALID_USER_DATA', 'Invalid data.', 400);
     }
 
     $existing = $pdo->prepare('SELECT 1 FROM users WHERE username = ?');
     $existing->execute([$username]);
     if ($existing->fetch()) {
-        send_json(['error' => 'Login już istnieje'], 400);
+        send_error('USERNAME_TAKEN', 'This username is already taken.', 400);
     }
 
     $hash = password_hash($password, PASSWORD_BCRYPT);
@@ -40,12 +40,12 @@ if ($method === 'POST') {
 if ($method === 'PUT') {
     $user = require_role('admin');
     $id = $_GET['id'] ?? null;
-    if (!$id) send_json(['error' => 'Brak id użytkownika'], 400);
+    if (!$id) send_error('USER_ID_REQUIRED', 'Missing user id.', 400);
 
     $stmt = $pdo->prepare('SELECT * FROM users WHERE id = ?');
     $stmt->execute([$id]);
     $target = $stmt->fetch();
-    if (!$target) send_json(['error' => 'Nie znaleziono użytkownika'], 404);
+    if (!$target) send_error('USER_NOT_FOUND', 'User not found.', 404);
 
     $body = json_body();
 
@@ -65,10 +65,10 @@ if ($method === 'PUT') {
 if ($method === 'DELETE') {
     $user = require_role('admin');
     $id = $_GET['id'] ?? null;
-    if (!$id) send_json(['error' => 'Brak id użytkownika'], 400);
+    if (!$id) send_error('USER_ID_REQUIRED', 'Missing user id.', 400);
 
     if ((int) $id === (int) $user['id']) {
-        send_json(['error' => 'Nie możesz usunąć własnego konta'], 400);
+        send_error('CANNOT_DELETE_SELF', 'You cannot delete your own account.', 400);
     }
 
     $stmt = $pdo->prepare('DELETE FROM users WHERE id = ?');
@@ -76,4 +76,4 @@ if ($method === 'DELETE') {
     send_json(['ok' => true]);
 }
 
-send_json(['error' => 'Niedozwolona metoda'], 405);
+send_error('METHOD_NOT_ALLOWED', 'This method is not allowed.', 405);

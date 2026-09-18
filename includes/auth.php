@@ -15,6 +15,10 @@ function send_json($data, int $code = 200): void {
     exit;
 }
 
+function send_error(string $code, string $message, int $httpCode = 400): void {
+    send_json(['error' => $message, 'code' => $code], $httpCode);
+}
+
 function current_user(): ?array {
     return $_SESSION['user'] ?? null;
 }
@@ -22,7 +26,7 @@ function current_user(): ?array {
 function require_auth(): array {
     $user = current_user();
     if (!$user) {
-        send_json(['error' => 'Niezalogowany'], 401);
+        send_error('AUTH_REQUIRED', 'You are not logged in.', 401);
     }
     return $user;
 }
@@ -30,14 +34,14 @@ function require_auth(): array {
 function require_role(string ...$roles): array {
     $user = require_auth();
     if (!in_array($user['role'], $roles, true)) {
-        send_json(['error' => 'Brak uprawnień'], 403);
+        send_error('FORBIDDEN', 'You do not have permission to do this.', 403);
     }
     return $user;
 }
 
 function require_method(string ...$methods): void {
     if (!in_array($_SERVER['REQUEST_METHOD'], $methods, true)) {
-        send_json(['error' => 'Niedozwolona metoda'], 405);
+        send_error('METHOD_NOT_ALLOWED', 'This method is not allowed.', 405);
     }
 }
 

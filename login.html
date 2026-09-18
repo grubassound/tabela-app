@@ -1,30 +1,47 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en" data-i18n-doctitle="docTitleLogin">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Logowanie — Tabela</title>
-<link rel="stylesheet" href="css/style.css">
+<title>Log in — Table</title>
+<script>
+(function () {
+  try {
+    var t = localStorage.getItem('theme');
+    if (!t) t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', t);
+    var l = localStorage.getItem('lang');
+    if (l && ['en', 'pl', 'nl'].indexOf(l) !== -1) document.documentElement.setAttribute('lang', l);
+  } catch (e) {}
+})();
+</script>
+<link rel="stylesheet" href="css/style.css?v=4">
 </head>
 <body>
 <div class="login-shell">
+  <div class="login-shell__controls">
+    <button class="btn btn--icon" id="langToggle" type="button" data-i18n-title="langToggleTitle" title="Change language">EN</button>
+    <button class="btn btn--icon" id="themeToggle" type="button" data-i18n-title="themeToggleTitle" title="Toggle theme"></button>
+  </div>
   <div class="login-card">
-    <h1>Witaj z powrotem</h1>
-    <p class="sub">Zaloguj się, aby zobaczyć tabelę.</p>
+    <h1 data-i18n="loginTitle">Welcome back</h1>
+    <p class="sub" data-i18n="loginSubtitle">Log in to view the table.</p>
     <div class="error-msg" id="errorMsg"></div>
     <form id="loginForm">
       <div class="field">
-        <label for="username">Login</label>
+        <label for="username" data-i18n="usernameLabel">Username</label>
         <input type="text" id="username" autocomplete="username" required>
       </div>
       <div class="field">
-        <label for="password">Hasło</label>
+        <label for="password" data-i18n="passwordLabel">Password</label>
         <input type="password" id="password" autocomplete="current-password" required>
       </div>
-      <button type="submit" class="btn btn--primary" style="width:100%;" id="loginBtn">Zaloguj się</button>
+      <button type="submit" class="btn btn--primary" style="width:100%;" id="loginBtn" data-i18n="loginSubmit">Log in</button>
     </form>
   </div>
 </div>
-<script src="js/login.js"></script>
+<script src="js/i18n.js?v=4"></script>
+<script src="js/theme.js?v=2"></script>
+<script src="js/login.js?v=3"></script>
 </body>
 </html>

@@ -7,7 +7,7 @@ $username = trim($body['username'] ?? '');
 $password = $body['password'] ?? '';
 
 if ($username === '' || $password === '') {
-    send_json(['error' => 'Podaj login i hasło'], 400);
+    send_error('LOGIN_PASSWORD_REQUIRED', 'Please provide a username and password.', 400);
 }
 
 $stmt = $pdo->prepare('SELECT * FROM users WHERE username = ?');
@@ -15,7 +15,7 @@ $stmt->execute([$username]);
 $user = $stmt->fetch();
 
 if (!$user || !password_verify($password, $user['password_hash'])) {
-    send_json(['error' => 'Nieprawidłowy login lub hasło'], 401);
+    send_error('INVALID_CREDENTIALS', 'Invalid username or password.', 401);
 }
 
 $_SESSION['user'] = ['id' => (int) $user['id'], 'username' => $user['username'], 'role' => $user['role']];

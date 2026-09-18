@@ -5,12 +5,14 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'POST') {
     $user = require_role('admin', 'editor');
+    $body = json_body();
+    $isDivider = !empty($body['divider']);
 
     $maxOrder = $pdo->query('SELECT COALESCE(MAX(order_index), -1) FROM `rows`')->fetchColumn();
     $nextOrder = (int) $maxOrder + 1;
 
-    $stmt = $pdo->prepare('INSERT INTO `rows` (order_index, created_by) VALUES (?, ?)');
-    $stmt->execute([$nextOrder, $user['id']]);
+    $stmt = $pdo->prepare('INSERT INTO `rows` (order_index, created_by, is_divider) VALUES (?, ?, ?)');
+    $stmt->execute([$nextOrder, $user['id'], $isDivider ? 1 : 0]);
     $rowId = (int) $pdo->lastInsertId();
 
     $columns = $pdo->query('SELECT id FROM `columns`')->fetchAll();
@@ -25,11 +27,11 @@ if ($method === 'POST') {
 if ($method === 'DELETE') {
     require_role('admin', 'editor');
     $id = $_GET['id'] ?? null;
-    if (!$id) send_json(['error' => 'Brak id wiersza'], 400);
+    if (!$id) send_error('ROW_ID_REQUIRED', 'Missing row id.', 400);
 
     $stmt = $pdo->prepare('DELETE FROM `rows` WHERE id = ?');
     $stmt->execute([$id]);
     send_json(['ok' => true]);
 }
 
-send_json(['error' => 'Niedozwolona metoda'], 405);
+send_error('METHOD_NOT_ALLOWED', 'This method is not allowed.', 405);

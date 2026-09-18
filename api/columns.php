@@ -9,12 +9,12 @@ if ($method === 'POST') {
     $name = trim($body['name'] ?? '');
     $type = in_array($body['type'] ?? '', ['text', 'number', 'select'], true) ? $body['type'] : 'text';
 
-    if ($name === '') send_json(['error' => 'Podaj nazwę kolumny'], 400);
+    if ($name === '') send_error('COLUMN_NAME_REQUIRED', 'Please provide a column name.', 400);
 
     $optionsJson = null;
     if ($type === 'select') {
         $clean = sanitize_options_input($body['options'] ?? []);
-        if (empty($clean)) send_json(['error' => 'Lista wyboru wymaga co najmniej jednej opcji'], 400);
+        if (empty($clean)) send_error('SELECT_OPTIONS_REQUIRED', 'A dropdown list requires at least one option.', 400);
         $optionsJson = json_encode($clean);
     }
 
@@ -37,12 +37,12 @@ if ($method === 'POST') {
 if ($method === 'PUT') {
     require_role('admin');
     $id = $_GET['id'] ?? null;
-    if (!$id) send_json(['error' => 'Brak id kolumny'], 400);
+    if (!$id) send_error('COLUMN_ID_REQUIRED', 'Missing column id.', 400);
 
     $stmt = $pdo->prepare('SELECT * FROM `columns` WHERE id = ?');
     $stmt->execute([$id]);
     $col = $stmt->fetch();
-    if (!$col) send_json(['error' => 'Nie znaleziono kolumny'], 404);
+    if (!$col) send_error('COLUMN_NOT_FOUND', 'Column not found.', 404);
 
     $body = json_body();
     $nextType = in_array($body['type'] ?? '', ['text', 'number', 'select'], true) ? $body['type'] : $col['type'];
@@ -51,7 +51,7 @@ if ($method === 'PUT') {
     if ($nextType === 'select') {
         $source = array_key_exists('options', $body) ? $body['options'] : parse_options($col['options']);
         $clean = sanitize_options_input($source);
-        if (empty($clean)) send_json(['error' => 'Lista wyboru wymaga co najmniej jednej opcji'], 400);
+        if (empty($clean)) send_error('SELECT_OPTIONS_REQUIRED', 'A dropdown list requires at least one option.', 400);
         $optionsJson = json_encode($clean);
     } elseif (isset($body['type']) && $body['type'] !== 'select') {
         $optionsJson = null;
@@ -69,11 +69,11 @@ if ($method === 'PUT') {
 if ($method === 'DELETE') {
     require_role('admin');
     $id = $_GET['id'] ?? null;
-    if (!$id) send_json(['error' => 'Brak id kolumny'], 400);
+    if (!$id) send_error('COLUMN_ID_REQUIRED', 'Missing column id.', 400);
 
     $stmt = $pdo->prepare('DELETE FROM `columns` WHERE id = ?');
     $stmt->execute([$id]);
     send_json(['ok' => true]);
 }
 
-send_json(['error' => 'Niedozwolona metoda'], 405);
+send_error('METHOD_NOT_ALLOWED', 'This method is not allowed.', 405);
