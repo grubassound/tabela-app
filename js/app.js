@@ -236,6 +236,10 @@ document.getElementById('addDividerBtn').addEventListener('click', async () => {
   await loadTable();
 });
 
+document.getElementById('exportPdfBtn').addEventListener('click', () => {
+  window.print();
+});
+
 document.getElementById('logoutBtn').addEventListener('click', async () => {
   await fetch('api/logout.php', { method: 'POST' });
   window.location.href = 'login.html';

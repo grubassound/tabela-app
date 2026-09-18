@@ -25,6 +25,8 @@ const translations = {
     pageTitleSheet: 'Data sheet',
     addRowBtn: '+ Add row',
     addDividerBtn: '+ Add separator',
+    exportExcelBtn: '⇩ Excel',
+    exportPdfBtn: '⇩ PDF',
     emptyStateRows: 'No rows yet. Add your first entry.',
 
     userModalTitle: 'User settings',
@@ -155,6 +157,8 @@ const translations = {
     pageTitleSheet: 'Arkusz danych',
     addRowBtn: '+ Dodaj wiersz',
     addDividerBtn: '+ Dodaj separator',
+    exportExcelBtn: '⇩ Excel',
+    exportPdfBtn: '⇩ PDF',
     emptyStateRows: 'Brak wierszy. Dodaj pierwszy wpis.',
 
     userModalTitle: 'Ustawienia użytkownika',
@@ -285,6 +289,8 @@ const translations = {
     pageTitleSheet: 'Gegevensblad',
     addRowBtn: '+ Rij toevoegen',
     addDividerBtn: '+ Scheiding toevoegen',
+    exportExcelBtn: '⇩ Excel',
+    exportPdfBtn: '⇩ PDF',
     emptyStateRows: 'Nog geen rijen. Voeg de eerste vermelding toe.',
 
     userModalTitle: 'Gebruikersinstellingen',
