@@ -14,6 +14,20 @@ and three user roles:
 
 All permissions are enforced server-side (in PHP), not just hidden in the UI.
 
+## Features
+
+- **Dark mode** — toggle in the top bar, remembered per browser (`localStorage`).
+- **Multi-language UI** — English, Polish and Dutch, switchable per user in the
+  "User settings" panel.
+- **Public read-only sharing** — an admin can turn on "Public view" in Settings
+  so `index.html` can be opened by anyone with the link, without logging in
+  (still fully read-only; editing still requires login).
+- **Daily archives** — a snapshot of the table is saved automatically every day
+  at 8:00 PM via a cron job (see [`cli/daily_archive.php`](#6-daily-archive-cron-job)).
+  Admins can browse, preview and delete past snapshots from the Archive tab.
+- **Row dividers** — editors/admins can insert visual separator rows to group
+  data, independent of the table columns.
+
 ## Tech stack
 
 - **Backend:** plain PHP (no frameworks, no Composer) — PDO for MySQL
@@ -165,6 +179,26 @@ Default admin account (created automatically on the first request):
 
 ---
 
+## 6. Daily archive (cron job)
+
+To have the app automatically save a daily snapshot of the table (at 8:00 PM),
+add a cron job that runs the CLI script:
+
+```bash
+sudo crontab -e -u www-data
+```
+
+Add this line (adjust the path if you installed the app elsewhere):
+
+```cron
+0 20 * * * /usr/bin/php /var/www/html/tabela-app/cli/daily_archive.php >> /var/www/html/tabela-app/archive.log 2>&1
+```
+
+Snapshots are stored in the `archives` table and can be browsed, previewed or
+deleted by an admin from the **Archive** tab in the admin panel.
+
+---
+
 ## Project structure
 
 ```
@@ -175,21 +209,26 @@ tabela-app/
 │   ├── .htaccess            ← blocks the WHOLE folder from outside access
 │   ├── db.php                 ← PDO connection + table creation
 │   ├── auth.php                ← helper functions (sessions, JSON, permissions)
-│   └── bootstrap.php            ← included at the top of every file in api/
+│   ├── bootstrap.php            ← included at the top of every file in api/
+│   └── snapshot.php              ← builds/saves the daily archive snapshot
 ├── api/
 │   ├── login.php     (POST)
 │   ├── logout.php    (POST)
-│   ├── me.php         (GET, PUT — change password)
-│   ├── table.php       (GET)
+│   ├── me.php         (GET, PUT — change password, language)
+│   ├── table.php       (GET — respects "public view" setting)
 │   ├── rows.php         (POST, DELETE ?id=)
 │   ├── cells.php          (PUT)
 │   ├── columns.php         (POST, PUT ?id=, DELETE ?id=)
-│   └── users.php            (GET, POST, PUT ?id=, DELETE ?id=)
+│   ├── users.php            (GET, POST, PUT ?id=, DELETE ?id=)
+│   ├── settings.php          (GET, PUT — public view, table name)
+│   └── archives.php           (GET, DELETE ?id= — daily snapshots)
+├── cli/
+│   └── daily_archive.php      ← run via cron, see step 6
 ├── login.html
 ├── index.html          ← table view
-├── admin.html            ← admin panel
+├── admin.html            ← admin panel (users, columns, settings, archive)
 ├── css/style.css
-└── js/{login,app,admin}.js
+└── js/{login,app,admin,theme,i18n}.js
 ```
 
 ## Security — things to keep in mind
@@ -197,6 +236,8 @@ tabela-app/
 - **`config.php` contains your database password** — never commit it to git
   (it's in `.gitignore`) and make sure `.htaccess` actually blocks access to it
   (see step 4a — without `AllowOverride All`, `.htaccess` does nothing).
+- **Public view** exposes the table (read-only) to anyone with the link, with
+  no login required — only turn it on for data that's fine to share openly.
 - You'll want to add **HTTPS** eventually (Let's Encrypt / certbot), so login
   passwords don't travel over the network in plain text:
   ```bash
