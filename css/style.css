@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600&family=Montserrat:wght@600;700;800&family=Raleway:wght@400;500;600;700&display=swap');
 
 :root,
 :root[data-theme="light"] {
@@ -68,6 +68,158 @@
   --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
+/* --- Theme: Modern (flat, opaque, no glass) --- */
+:root[data-style="modern"] {
+  --radius: 10px;
+  --radius-lg: 14px;
+  --blur: 0px;
+
+  --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+:root[data-style="modern"][data-theme="light"] {
+  color-scheme: light;
+
+  --bg-base: #F5F6F8;
+
+  --surface: #FFFFFF;
+  --surface-strong: #FFFFFF;
+  --surface-hover: #F0F1F4;
+  --border: #E4E6EB;
+  --border-soft: #ECEDF1;
+
+  --ink: #14161A;
+  --ink-soft: #6B7280;
+
+  --accent: #4F46E5;
+  --accent-strong: #4338CA;
+  --accent-ink: #FFFFFF;
+  --accent-soft: rgba(79, 70, 229, 0.12);
+
+  --danger: #DC2626;
+  --danger-soft: rgba(220, 38, 38, 0.1);
+
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
+  --shadow-md: 0 8px 24px rgba(16, 24, 40, 0.08);
+  --shadow-inset: 0 0 0 transparent;
+}
+
+:root[data-style="modern"][data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg-base: #0B0D12;
+
+  --surface: #14171D;
+  --surface-strong: #171B22;
+  --surface-hover: #1D222B;
+  --border: #262B34;
+  --border-soft: #1D212A;
+
+  --ink: #F3F4F6;
+  --ink-soft: #9CA3AF;
+
+  --accent: #818CF8;
+  --accent-strong: #A5B4FC;
+  --accent-ink: #0B0D12;
+  --accent-soft: rgba(129, 140, 248, 0.18);
+
+  --danger: #F87171;
+  --danger-soft: rgba(248, 113, 113, 0.14);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 28px rgba(0, 0, 0, 0.5);
+  --shadow-inset: 0 0 0 transparent;
+}
+
+/* --- Theme: Esbro (brand palette — esbro.nl) --- */
+:root[data-style="esbro"] {
+  --radius: 6px;
+  --radius-lg: 10px;
+  --blur: 0px;
+
+  --font-ui: 'Raleway', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+  --brand-green: #A7B010;
+}
+
+:root[data-style="esbro"][data-theme="light"] {
+  color-scheme: light;
+
+  --bg-base: #F2F7FB;
+
+  --surface: #FFFFFF;
+  --surface-strong: #FFFFFF;
+  --surface-hover: #E8F1F8;
+  --border: #D3E3EE;
+  --border-soft: #E4EEF5;
+
+  --ink: #001C2E;
+  --ink-soft: #4A6478;
+
+  --accent: #003A60;
+  --accent-strong: #00263F;
+  --accent-ink: #FFFFFF;
+  --accent-soft: rgba(0, 58, 96, 0.1);
+
+  --danger: #B3261E;
+  --danger-soft: rgba(179, 38, 30, 0.1);
+
+  --shadow-sm: 0 1px 2px rgba(0, 28, 46, 0.08);
+  --shadow-md: 0 10px 28px rgba(0, 28, 46, 0.12);
+  --shadow-inset: 0 0 0 transparent;
+}
+
+:root[data-style="esbro"][data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg-base: #00131F;
+
+  --surface: #062A42;
+  --surface-strong: #0B3350;
+  --surface-hover: #0E3C5C;
+  --border: #123F5E;
+  --border-soft: #0C3049;
+
+  --ink: #EAF3FA;
+  --ink-soft: #8FB0C4;
+
+  --accent: #5AA0CC;
+  --accent-strong: #79B8E0;
+  --accent-ink: #001C2E;
+  --accent-soft: rgba(90, 160, 204, 0.18);
+
+  --danger: #E5766B;
+  --danger-soft: rgba(229, 118, 107, 0.16);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.5);
+  --shadow-inset: 0 0 0 transparent;
+}
+
+:root[data-style="modern"] body::before,
+:root[data-style="esbro"] body::before {
+  display: none;
+}
+
+:root[data-style="modern"] .topbar,
+:root[data-style="modern"] .table-wrap,
+:root[data-style="modern"] .login-card,
+:root[data-style="modern"] .panel,
+:root[data-style="modern"] table.sheet thead th,
+:root[data-style="modern"] .modal-overlay .login-card,
+:root[data-style="modern"] .btn,
+:root[data-style="esbro"] .topbar,
+:root[data-style="esbro"] .table-wrap,
+:root[data-style="esbro"] .login-card,
+:root[data-style="esbro"] .panel,
+:root[data-style="esbro"] table.sheet thead th,
+:root[data-style="esbro"] .modal-overlay .login-card,
+:root[data-style="esbro"] .btn {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
 * { box-sizing: border-box; }
 
 html { min-height: 100%; }
@@ -127,6 +279,42 @@ table.sheet thead th,
   font-size: 20px;
   font-weight: 600;
   letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+:root[data-style="esbro"] .topbar__brand::before {
+  content: '';
+  display: inline-block;
+  width: 21px;
+  height: 28px;
+  flex: 0 0 auto;
+  background-image: url('../img/esbro-mark.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+:root[data-style="esbro"][data-theme="dark"] .topbar__brand::before {
+  background-image: url('../img/esbro-mark-light.png');
+}
+
+.brand-logo {
+  display: none;
+}
+:root[data-style="esbro"] .brand-logo {
+  display: block;
+  width: 190px;
+  max-width: 70%;
+  aspect-ratio: 512 / 255;
+  margin: 0 auto 22px;
+  background-image: url('../img/esbro-logo.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+:root[data-style="esbro"][data-theme="dark"] .brand-logo {
+  background-image: url('../img/esbro-logo-light.png');
 }
 
 .topbar__user {
@@ -145,6 +333,25 @@ table.sheet thead th,
   font-weight: 600;
   font-size: 12px;
 }
+
+.avatar {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.avatar svg { width: 16px; height: 16px; }
+.avatar--sm { width: 26px; height: 26px; }
+.avatar--sm svg { width: 14px; height: 14px; }
+
+.avatar--admin { background: rgba(197, 145, 41, 0.18); color: #A8791F; }
+.avatar--editor { background: var(--accent-soft); color: var(--accent); }
+.avatar--viewer { background: var(--border-soft); color: var(--ink-soft); }
+
+:root[data-theme="dark"] .avatar--admin { background: rgba(224, 176, 76, 0.18); color: #E0B04C; }
 
 .btn {
   font-family: var(--font-ui);
@@ -273,35 +480,6 @@ table.sheet td .cell {
   color: var(--ink);
 }
 
-.cell-line-btn {
-  flex: 0 0 auto;
-  border: none;
-  background: transparent;
-  color: var(--ink-soft);
-  cursor: pointer;
-  font-size: 13px;
-  padding: 0 12px;
-  opacity: .35;
-  transition: opacity .15s ease, color .15s ease, background .15s ease;
-}
-table.sheet tr:hover .cell-line-btn,
-.cell-line-btn:focus-visible {
-  opacity: 1;
-}
-.cell-line-btn:hover {
-  color: var(--accent);
-  background: var(--accent-soft);
-}
-
-.cell-line {
-  flex: 1;
-  align-self: center;
-  border: none;
-  border-top: 2px solid var(--ink-soft);
-  opacity: .5;
-  margin: 0 14px;
-}
-
 table.sheet .divider-cell {
   padding: 8px 14px;
 }
@@ -318,11 +496,24 @@ select.cell {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='%235B5F5A' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
+  background-size: 12px 8px;
   padding-right: 30px;
   cursor: pointer;
 }
 :root[data-theme="dark"] select.cell {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='%23A5ACA6' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+}
+:root[data-style="modern"][data-theme="light"] select.cell {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='%236B7280' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+}
+:root[data-style="modern"][data-theme="dark"] select.cell {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='%239CA3AF' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+}
+:root[data-style="esbro"][data-theme="light"] select.cell {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='%234A6478' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+}
+:root[data-style="esbro"][data-theme="dark"] select.cell {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='%238FB0C4' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
 }
 select.cell:disabled {
   cursor: default;
@@ -514,7 +705,6 @@ table.sheet .row-del:hover { color: var(--danger); background: var(--danger-soft
   body::before,
   .topbar,
   .toolbar,
-  .cell-line-btn,
   .row-actions-col,
   .modal-overlay {
     display: none !important;

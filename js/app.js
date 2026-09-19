@@ -12,6 +12,7 @@ async function init() {
 
 function applyUserChrome() {
   const rolePill = document.getElementById('rolePill');
+  const userAvatar = document.getElementById('userAvatar');
   const userBtn = document.getElementById('userBtn');
   const logoutBtn = document.getElementById('logoutBtn');
   const loginLink = document.getElementById('loginLink');
@@ -22,7 +23,11 @@ function applyUserChrome() {
 
   document.getElementById('usernameLabel').textContent = currentUser ? currentUser.username : '';
   rolePill.style.display = currentUser ? '' : 'none';
-  if (currentUser) rolePill.textContent = roleLabel(currentUser.role);
+  userAvatar.style.display = currentUser ? '' : 'none';
+  if (currentUser) {
+    rolePill.textContent = roleLabel(currentUser.role);
+    userAvatar.innerHTML = roleAvatarHTML(currentUser.role);
+  }
   userBtn.style.display = currentUser ? '' : 'none';
   logoutBtn.style.display = currentUser ? '' : 'none';
   loginLink.style.display = currentUser ? 'none' : '';
@@ -91,61 +96,38 @@ function render() {
 
     state.columns.forEach(col => {
       const td = document.createElement('td');
-      const cellData = row.cells[col.id] || { value: '', isLine: false };
+      const cellData = row.cells[col.id] || { value: '' };
       const currentValue = cellData.value || '';
       const wrap = document.createElement('div');
       wrap.className = 'cell-wrap';
 
-      if (cellData.isLine) {
-        wrap.innerHTML = '<hr class="cell-line">';
-        if (canEdit) {
-          const btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = 'cell-line-btn';
-          btn.title = t('restoreCellTitle');
-          btn.textContent = '✎';
-          btn.addEventListener('click', () => toggleCellLine(row.id, col.id, false));
-          wrap.appendChild(btn);
-        }
+      let control;
+      if (col.type === 'select') {
+        control = document.createElement('select');
+        control.className = 'cell';
+        const emptyOpt = document.createElement('option');
+        emptyOpt.value = '';
+        emptyOpt.textContent = '—';
+        control.appendChild(emptyOpt);
+        (col.options || []).forEach(opt => {
+          const optionEl = document.createElement('option');
+          optionEl.value = opt;
+          optionEl.textContent = opt;
+          if (opt === currentValue) optionEl.selected = true;
+          control.appendChild(optionEl);
+        });
+        if (!canEdit) control.setAttribute('disabled', 'disabled');
+        control.addEventListener('change', () => saveCell(row.id, col.id, control));
       } else {
-        let control;
-        if (col.type === 'select') {
-          control = document.createElement('select');
-          control.className = 'cell';
-          const emptyOpt = document.createElement('option');
-          emptyOpt.value = '';
-          emptyOpt.textContent = '—';
-          control.appendChild(emptyOpt);
-          (col.options || []).forEach(opt => {
-            const optionEl = document.createElement('option');
-            optionEl.value = opt;
-            optionEl.textContent = opt;
-            if (opt === currentValue) optionEl.selected = true;
-            control.appendChild(optionEl);
-          });
-          if (!canEdit) control.setAttribute('disabled', 'disabled');
-          control.addEventListener('change', () => saveCell(row.id, col.id, control));
-        } else {
-          control = document.createElement('input');
-          control.className = 'cell';
-          control.value = currentValue;
-          control.type = 'text';
-          control.inputMode = col.type === 'number' ? 'decimal' : 'text';
-          if (!canEdit) control.setAttribute('readonly', 'readonly');
-          control.addEventListener('change', () => saveCell(row.id, col.id, control));
-        }
-        wrap.appendChild(control);
-
-        if (canEdit) {
-          const btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = 'cell-line-btn';
-          btn.title = t('makeLineTitle');
-          btn.textContent = '―';
-          btn.addEventListener('click', () => toggleCellLine(row.id, col.id, true));
-          wrap.appendChild(btn);
-        }
+        control = document.createElement('input');
+        control.className = 'cell';
+        control.value = currentValue;
+        control.type = 'text';
+        control.inputMode = col.type === 'number' ? 'decimal' : 'text';
+        if (!canEdit) control.setAttribute('readonly', 'readonly');
+        control.addEventListener('change', () => saveCell(row.id, col.id, control));
       }
+      wrap.appendChild(control);
 
       td.appendChild(wrap);
       tr.appendChild(td);
@@ -185,20 +167,6 @@ async function saveCell(rowId, columnId, input) {
     return;
   }
   input.dataset.prev = value;
-}
-
-async function toggleCellLine(rowId, columnId, nextIsLine) {
-  const res = await fetch('api/cells.php', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ rowId, columnId, value: '', isLine: nextIsLine })
-  });
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    alert(apiErrorMessage(data, 'errUpdateCellFallback'));
-    return;
-  }
-  await loadTable();
 }
 
 async function deleteRow(rowId) {

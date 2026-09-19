@@ -10,12 +10,15 @@
     var t = localStorage.getItem('theme');
     if (!t) t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     document.documentElement.setAttribute('data-theme', t);
+    var s = localStorage.getItem('themeStyle');
+    if (['liquid', 'modern', 'esbro'].indexOf(s) === -1) s = 'liquid';
+    document.documentElement.setAttribute('data-style', s);
     var l = localStorage.getItem('lang');
     if (l && ['en', 'pl', 'nl'].indexOf(l) !== -1) document.documentElement.setAttribute('lang', l);
   } catch (e) {}
 })();
 </script>
-<link rel="stylesheet" href="css/style.css?v=5">
+<link rel="stylesheet" href="css/style.css?v=9">
 </head>
 <body>
 <div class="login-shell">
@@ -24,6 +27,7 @@
     <button class="btn btn--icon" id="themeToggle" type="button" data-i18n-title="themeToggleTitle" title="Toggle theme"></button>
   </div>
   <div class="login-card">
+    <div class="brand-logo" role="img" aria-label="Esbro"></div>
     <h1 data-i18n="loginTitle">Welcome back</h1>
     <p class="sub" data-i18n="loginSubtitle">Log in to view the table.</p>
     <div class="error-msg" id="errorMsg"></div>
@@ -40,8 +44,8 @@
     </form>
   </div>
 </div>
-<script src="js/i18n.js?v=5"></script>
-<script src="js/theme.js?v=2"></script>
+<script src="js/i18n.js?v=9"></script>
+<script src="js/theme.js?v=4"></script>
 <script src="js/login.js?v=3"></script>
 </body>
 </html>

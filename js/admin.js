@@ -11,8 +11,10 @@ async function init() {
   if (!me.user) { window.location.href = 'login.html'; return; }
   if (me.user.role !== 'admin') { window.location.href = 'index.html'; return; }
   document.getElementById('usernameLabel').textContent = me.user.username;
+  document.getElementById('userAvatar').innerHTML = roleAvatarHTML('admin');
 
   initTabs();
+  document.getElementById('themeStyleSelect').value = getThemeStyle();
   await loadColumns();
   await loadUsers();
   await loadSettings();
@@ -156,6 +158,7 @@ async function loadUsers() {
     const row = document.createElement('div');
     row.className = 'list-row';
     row.innerHTML = `
+      ${roleAvatarHTML(u.role, 'sm')}
       <div class="list-row__main">
         <div class="list-row__name">${escapeHtml(u.username)}</div>
         <div class="list-row__meta">${roleLabel(u.role)}</div>
@@ -349,6 +352,10 @@ document.getElementById('addUserForm').addEventListener('submit', async (e) => {
   document.getElementById('userLogin').value = '';
   document.getElementById('userPassword').value = '';
   loadUsers();
+});
+
+document.getElementById('themeStyleSelect').addEventListener('change', (e) => {
+  setThemeStyle(e.target.value);
 });
 
 document.getElementById('publicViewToggle').addEventListener('change', async (e) => {

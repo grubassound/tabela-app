@@ -10,17 +10,21 @@
     var t = localStorage.getItem('theme');
     if (!t) t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     document.documentElement.setAttribute('data-theme', t);
+    var s = localStorage.getItem('themeStyle');
+    if (['liquid', 'modern', 'esbro'].indexOf(s) === -1) s = 'liquid';
+    document.documentElement.setAttribute('data-style', s);
     var l = localStorage.getItem('lang');
     if (l && ['en', 'pl', 'nl'].indexOf(l) !== -1) document.documentElement.setAttribute('lang', l);
   } catch (e) {}
 })();
 </script>
-<link rel="stylesheet" href="css/style.css?v=5">
+<link rel="stylesheet" href="css/style.css?v=9">
 </head>
 <body>
 <div class="topbar">
   <div class="topbar__brand" data-i18n="brand">Table</div>
   <div class="topbar__user">
+    <span id="userAvatar"></span>
     <span class="role-pill" data-i18n="roleAdmin">Administrator</span>
     <span id="usernameLabel"></span>
     <a class="btn btn--ghost" href="index.html" data-i18n="backToTableLink">← Back to table</a>
@@ -82,6 +86,19 @@
         </div>
         <button type="submit" class="btn btn--primary" data-i18n="saveBtn">Save</button>
       </form>
+    </div>
+
+    <div class="panel">
+      <h2 data-i18n="appearanceTitle">Appearance</h2>
+      <div class="field" style="max-width:280px;">
+        <label for="themeStyleSelect" data-i18n="themeStyleLabel">Theme</label>
+        <select id="themeStyleSelect">
+          <option value="liquid" data-i18n="themeStyleLiquid">Liquid</option>
+          <option value="modern" data-i18n="themeStyleModern">Modern</option>
+          <option value="esbro" data-i18n="themeStyleEsbro">Esbro</option>
+        </select>
+      </div>
+      <div class="list-row__meta" data-i18n="themeStyleDesc">Choose the app's visual style. Combine it with the light/dark toggle in the top bar.</div>
     </div>
 
     <div class="panel">
@@ -166,8 +183,8 @@
   </section>
 </main>
 
-<script src="js/i18n.js?v=5"></script>
-<script src="js/theme.js?v=2"></script>
-<script src="js/admin.js?v=9"></script>
+<script src="js/i18n.js?v=9"></script>
+<script src="js/theme.js?v=4"></script>
+<script src="js/admin.js?v=11"></script>
 </body>
 </html>

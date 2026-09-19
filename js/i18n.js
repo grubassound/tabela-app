@@ -39,8 +39,6 @@ const translations = {
 
     deleteRowTitle: 'Delete row',
     deleteDividerTitle: 'Delete separator',
-    restoreCellTitle: 'Restore editable cell',
-    makeLineTitle: 'Turn into horizontal line',
     confirmDeleteRow: 'Delete this row?',
 
     loginTitle: 'Welcome back',
@@ -58,6 +56,13 @@ const translations = {
     tableNameTitle: 'Table name',
     tableNameLabel: 'Displayed name',
     tableNamePlaceholder: 'e.g. Equipment log',
+
+    appearanceTitle: 'Appearance',
+    themeStyleLabel: 'Theme',
+    themeStyleLiquid: 'Liquid',
+    themeStyleModern: 'Modern',
+    themeStyleEsbro: 'Esbro',
+    themeStyleDesc: 'Choose the app\'s visual style. Combine it with the light/dark toggle in the top bar.',
 
     sharingTitle: 'Sharing',
     publicViewLabel: 'Table publicly visible',
@@ -97,7 +102,6 @@ const translations = {
     archivePreviewTitleWithDate: 'Preview — {date}',
 
     errSaveCellFallback: 'Failed to save the cell.',
-    errUpdateCellFallback: 'Failed to update the cell.',
     errDeleteRowFallback: 'Failed to delete the row.',
     errAddRowFallback: 'Failed to add the row.',
     errAddDividerFallback: 'Failed to add the separator.',
@@ -171,8 +175,6 @@ const translations = {
 
     deleteRowTitle: 'Usuń wiersz',
     deleteDividerTitle: 'Usuń separator',
-    restoreCellTitle: 'Przywróć edytowalną komórkę',
-    makeLineTitle: 'Zamień na poziomą kreskę',
     confirmDeleteRow: 'Usunąć ten wiersz?',
 
     loginTitle: 'Witaj z powrotem',
@@ -190,6 +192,13 @@ const translations = {
     tableNameTitle: 'Nazwa tabeli',
     tableNameLabel: 'Wyświetlana nazwa',
     tableNamePlaceholder: 'np. Ewidencja sprzętu',
+
+    appearanceTitle: 'Wygląd',
+    themeStyleLabel: 'Motyw',
+    themeStyleLiquid: 'Liquid',
+    themeStyleModern: 'Nowoczesny',
+    themeStyleEsbro: 'Esbro',
+    themeStyleDesc: 'Wybierz styl wizualny aplikacji. Połącz go z przełącznikiem jasny/ciemny na górnym pasku.',
 
     sharingTitle: 'Udostępnianie',
     publicViewLabel: 'Tabela widoczna publicznie',
@@ -229,7 +238,6 @@ const translations = {
     archivePreviewTitleWithDate: 'Podgląd — {date}',
 
     errSaveCellFallback: 'Nie udało się zapisać komórki.',
-    errUpdateCellFallback: 'Nie udało się zaktualizować komórki.',
     errDeleteRowFallback: 'Nie udało się usunąć wiersza.',
     errAddRowFallback: 'Nie udało się dodać wiersza.',
     errAddDividerFallback: 'Nie udało się dodać separatora.',
@@ -303,8 +311,6 @@ const translations = {
 
     deleteRowTitle: 'Rij verwijderen',
     deleteDividerTitle: 'Scheiding verwijderen',
-    restoreCellTitle: 'Bewerkbare cel herstellen',
-    makeLineTitle: 'Omzetten in horizontale lijn',
     confirmDeleteRow: 'Deze rij verwijderen?',
 
     loginTitle: 'Welkom terug',
@@ -322,6 +328,13 @@ const translations = {
     tableNameTitle: 'Tabelnaam',
     tableNameLabel: 'Weergegeven naam',
     tableNamePlaceholder: 'bijv. Materiaalregister',
+
+    appearanceTitle: 'Weergave',
+    themeStyleLabel: 'Thema',
+    themeStyleLiquid: 'Liquid',
+    themeStyleModern: 'Modern',
+    themeStyleEsbro: 'Esbro',
+    themeStyleDesc: 'Kies de visuele stijl van de app. Combineer dit met de licht/donker-schakelaar in de bovenbalk.',
 
     sharingTitle: 'Delen',
     publicViewLabel: 'Tabel openbaar zichtbaar',
@@ -361,7 +374,6 @@ const translations = {
     archivePreviewTitleWithDate: 'Voorbeeld — {date}',
 
     errSaveCellFallback: 'Kon de cel niet opslaan.',
-    errUpdateCellFallback: 'Kon de cel niet bijwerken.',
     errDeleteRowFallback: 'Kon de rij niet verwijderen.',
     errAddRowFallback: 'Kon de rij niet toevoegen.',
     errAddDividerFallback: 'Kon de scheiding niet toevoegen.',
@@ -430,6 +442,21 @@ function apiErrorMessage(data, fallbackKey) {
   if (data && data.code) return t('error_' + data.code);
   if (data && data.error) return data.error;
   return t(fallbackKey || 'errGenericFallback');
+}
+
+const ROLE_AVATAR_ICONS = {
+  admin: '<path d="M5 16 3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5Z"/><path d="M5 16h14v3H5z"/>',
+  editor: '<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/>',
+  viewer: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
+};
+
+function roleAvatarHTML(role, size) {
+  const icon = ROLE_AVATAR_ICONS[role] || ROLE_AVATAR_ICONS.viewer;
+  const label = roleLabel(role);
+  const sizeClass = size === 'sm' ? ' avatar--sm' : '';
+  return `<span class="avatar avatar--${role}${sizeClass}" title="${label}" aria-hidden="true">` +
+    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${icon}</svg>` +
+    `</span>`;
 }
 
 function applyTranslations() {

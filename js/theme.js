@@ -1,3 +1,19 @@
+var THEME_STYLES = ['liquid', 'modern', 'esbro'];
+
+function getThemeStyle() {
+  try {
+    var s = localStorage.getItem('themeStyle');
+    if (THEME_STYLES.indexOf(s) !== -1) return s;
+  } catch (e) {}
+  return 'liquid';
+}
+
+function setThemeStyle(style) {
+  if (THEME_STYLES.indexOf(style) === -1) return;
+  document.documentElement.setAttribute('data-style', style);
+  try { localStorage.setItem('themeStyle', style); } catch (e) {}
+}
+
 (function () {
   function applyToggle(btn, theme) {
     if (!btn) return;
