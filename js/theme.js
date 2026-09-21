@@ -5,7 +5,7 @@ function getThemeStyle() {
     var s = localStorage.getItem('themeStyle');
     if (THEME_STYLES.indexOf(s) !== -1) return s;
   } catch (e) {}
-  return 'liquid';
+  return 'esbro';
 }
 
 function setThemeStyle(style) {

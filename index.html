@@ -11,7 +11,7 @@
     if (!t) t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     document.documentElement.setAttribute('data-theme', t);
     var s = localStorage.getItem('themeStyle');
-    if (['liquid', 'modern', 'esbro'].indexOf(s) === -1) s = 'liquid';
+    if (['liquid', 'modern', 'esbro'].indexOf(s) === -1) s = 'esbro';
     document.documentElement.setAttribute('data-style', s);
     var l = localStorage.getItem('lang');
     if (l && ['en', 'pl', 'nl'].indexOf(l) !== -1) document.documentElement.setAttribute('lang', l);
