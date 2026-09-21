@@ -493,12 +493,16 @@ table.sheet .divider-cell {
 select.cell {
   appearance: none;
   -webkit-appearance: none;
+  -moz-appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='%235B5F5A' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
   background-size: 12px 8px;
   padding-right: 30px;
   cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 :root[data-theme="dark"] select.cell {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='%23A5ACA6' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
