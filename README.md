@@ -14,8 +14,27 @@ and three user roles:
 
 All permissions are enforced server-side (in PHP), not just hidden in the UI.
 
+## Screenshots
+
+| Login | Data sheet |
+| --- | --- |
+| ![Login page](screenshots/login.png) | ![Data sheet, light mode](screenshots/table-light.png) |
+
+| Dark mode | Settings — Appearance |
+| --- | --- |
+| ![Data sheet, dark mode](screenshots/table-dark.png) | ![Settings, theme picker](screenshots/settings.png) |
+
+The **Esbro** theme (see below) applies the company's own branding, logo and colors:
+
+![Login page with the Esbro brand theme](screenshots/esbro-login.png)
+
 ## Features
 
+- **Themes** — three selectable visual styles (Settings → Appearance →
+  Theme), each with a light and dark variant: **Liquid** (glassmorphism,
+  the default), **Modern** (flat, no blur) and **Esbro** (the company's own
+  brand palette, typography and logo). The theme choice and the light/dark
+  toggle in the top bar are independent and combine freely.
 - **Dark mode** — toggle in the top bar, remembered per browser (`localStorage`).
 - **Multi-language UI** — English, Polish and Dutch, switchable per user in the
   "User settings" panel.
@@ -25,8 +44,9 @@ All permissions are enforced server-side (in PHP), not just hidden in the UI.
 - **Daily archives** — a snapshot of the table is saved automatically every day
   at 8:00 PM via a cron job (see [`cli/daily_archive.php`](#6-daily-archive-cron-job)).
   Admins can browse, preview and delete past snapshots from the Archive tab.
-- **Row dividers** — editors/admins can insert visual separator rows to group
-  data, independent of the table columns.
+- **Row dividers** — editors/admins can insert a full-width horizontal
+  separator row to group data, independent of the table columns.
+- **Export** — download the table as CSV/Excel or as a print-ready PDF.
 
 ## Tech stack
 
@@ -227,7 +247,9 @@ tabela-app/
 ├── login.html
 ├── index.html          ← table view
 ├── admin.html            ← admin panel (users, columns, settings, archive)
-├── css/style.css
+├── css/style.css          ← Liquid / Modern / Esbro themes, light + dark
+├── img/                     ← Esbro theme logo assets
+├── screenshots/               ← images used in this README
 └── js/{login,app,admin,theme,i18n}.js
 ```
 
