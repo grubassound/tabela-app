@@ -20,13 +20,11 @@ All permissions are enforced server-side (in PHP), not just hidden in the UI.
 | --- | --- |
 | ![Login page](screenshots/login.png) | ![Data sheet, light mode](screenshots/table-light.png) |
 
-| Dark mode | Settings — Appearance |
+| Login, dark mode | Data sheet, dark mode |
 | --- | --- |
-| ![Data sheet, dark mode](screenshots/table-dark.png) | ![Settings, theme picker](screenshots/settings.png) |
+| ![Login page, dark mode](screenshots/login-dark.jpg) | ![Data sheet, dark mode](screenshots/table-dark.png) |
 
-The **Esbro** theme (see below) applies the company's own branding, logo and colors:
-
-![Login page with the Esbro brand theme](screenshots/esbro-login.png)
+![Settings, theme picker](screenshots/settings.png)
 
 ## Features
 
