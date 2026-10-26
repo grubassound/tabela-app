@@ -89,6 +89,15 @@ function ensure_schema(PDO $pdo): void {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     ");
 
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS login_attempts (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            ip VARCHAR(45) NOT NULL,
+            attempted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            INDEX (ip, attempted_at)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    ");
+
     // Dopisanie kolumn do tabel, które mogły powstać przed ich wprowadzeniem
     ensure_column($pdo, 'rows', 'is_divider', 'TINYINT(1) NOT NULL DEFAULT 0');
     ensure_column($pdo, 'cells', 'is_line', 'TINYINT(1) NOT NULL DEFAULT 0');

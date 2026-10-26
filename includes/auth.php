@@ -23,6 +23,21 @@ function current_user(): ?array {
     return $_SESSION['user'] ?? null;
 }
 
+/** Odświeża dane użytkownika z bazy, żeby zmiana roli lub usunięcie konta działały od razu. */
+function refresh_session_user(PDO $pdo): void {
+    if (!isset($_SESSION['user']['id'])) return;
+
+    $stmt = $pdo->prepare('SELECT id, username, role FROM users WHERE id = ?');
+    $stmt->execute([$_SESSION['user']['id']]);
+    $row = $stmt->fetch();
+
+    if (!$row) {
+        unset($_SESSION['user']);
+        return;
+    }
+    $_SESSION['user'] = ['id' => (int) $row['id'], 'username' => $row['username'], 'role' => $row['role']];
+}
+
 function require_auth(): array {
     $user = current_user();
     if (!$user) {

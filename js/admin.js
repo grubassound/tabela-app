@@ -120,7 +120,7 @@ function toggleColumnEdit(col, row) {
     </div>
     <div class="field edit-options-field" style="flex-basis:100%; ${col.type === 'select' ? '' : 'display:none;'}">
       <label>${t('optionsLabel')}</label>
-      <textarea class="edit-options" rows="3">${(col.options || []).join('\n')}</textarea>
+      <textarea class="edit-options" rows="3">${escapeHtml((col.options || []).join('\n'))}</textarea>
     </div>
     <button type="submit" class="btn btn--primary">${t('saveChangesBtn')}</button>
     <button type="button" class="btn edit-cancel">${t('cancelBtn')}</button>
@@ -307,7 +307,7 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 function escapeAttr(str) {
-  return String(str).replace(/"/g, '&quot;');
+  return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 }
 
 document.getElementById('colType').addEventListener('change', () => {

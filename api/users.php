@@ -23,6 +23,9 @@ if ($method === 'POST') {
     if ($username === '' || $password === '' || !in_array($role, ['admin', 'editor', 'viewer'], true)) {
         send_error('INVALID_USER_DATA', 'Invalid data.', 400);
     }
+    if (strlen($password) < 6) {
+        send_error('PASSWORD_TOO_SHORT', 'The new password must be at least 6 characters long.', 400);
+    }
 
     $existing = $pdo->prepare('SELECT 1 FROM users WHERE username = ?');
     $existing->execute([$username]);
@@ -50,6 +53,9 @@ if ($method === 'PUT') {
     $body = json_body();
 
     if (!empty($body['password'])) {
+        if (strlen((string) $body['password']) < 6) {
+            send_error('PASSWORD_TOO_SHORT', 'The new password must be at least 6 characters long.', 400);
+        }
         $hash = password_hash($body['password'], PASSWORD_BCRYPT);
         $stmt = $pdo->prepare('UPDATE users SET password_hash = ? WHERE id = ?');
         $stmt->execute([$hash, $id]);

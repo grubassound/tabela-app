@@ -16,3 +16,4 @@ session_start();
 
 $pdo = get_pdo();
 ensure_schema($pdo);
+refresh_session_user($pdo);
