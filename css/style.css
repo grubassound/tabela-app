@@ -714,8 +714,44 @@ table.sheet tr.drop-after td { box-shadow: inset 0 -2px 0 var(--accent); }
 
 @media (max-width: 640px) {
   main { padding: 20px 16px; }
-  .topbar { padding: 14px 18px; }
-  .table-wrap { width: calc(100vw - 32px); }
+
+  /* Top bar: brand on the first line, actions on the second, all within the screen */
+  .topbar {
+    position: static;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px 16px;
+  }
+  .topbar__brand { flex: 1 1 100%; min-width: 0; font-size: 18px; }
+  .topbar__user { flex: 1 1 100%; gap: 4px; justify-content: space-between; }
+  .topbar__user .role-pill,
+  #usernameLabel { display: none !important; }
+  .topbar__user .btn--ghost { padding: 8px 10px; font-size: 13px; white-space: nowrap; }
+
+  .page-header { align-items: stretch; }
+  .page-header h1 { font-size: 22px; }
+  .toolbar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
+  .toolbar .btn { padding: 9px 12px; font-size: 13px; white-space: nowrap; text-align: center; }
+
+  /* Table: scroll sideways instead of squeezing columns until the text is cut off */
+  .table-wrap { width: calc(100vw - 32px); -webkit-overflow-scrolling: touch; }
+  table.sheet th.col-text, table.sheet td.col-text { min-width: 210px; }
+  table.sheet th.col-select, table.sheet td.col-select { min-width: 130px; }
+  table.sheet th.col-number, table.sheet td.col-number { min-width: 70px; }
+  table.sheet .row-drag { padding: 10px 6px; font-size: 18px; }
+  table.sheet .row-del { padding: 10px; }
+  #archiveTable th, #archiveTable td { min-width: 150px; }
+
+  /* Admin */
+  .panel { padding: 18px 16px; }
+  .list-row { flex-wrap: wrap; row-gap: 8px; }
+  .list-row__main { flex: 1 1 100px; }
+  .list-row > select.btn { flex: 1 1 auto; }
+  .inline-form .btn { flex: 1 1 100%; }
+  .tabs a { padding: 10px 12px; }
+
+  .modal-overlay { padding: 16px; }
+  .login-card { padding: 28px 22px; }
 }
 
 /* --- Print / PDF export --- */

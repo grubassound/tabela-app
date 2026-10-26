@@ -70,6 +70,7 @@ function render() {
   }
   state.columns.forEach(col => {
     const th = document.createElement('th');
+    th.className = `col-${col.type}`;
     th.textContent = col.name;
     headRow.appendChild(th);
   });
@@ -103,6 +104,7 @@ function render() {
 
     state.columns.forEach(col => {
       const td = document.createElement('td');
+      td.className = `col-${col.type}`;
       const cellData = row.cells[col.id] || { value: '' };
       const currentValue = cellData.value || '';
       const wrap = document.createElement('div');
