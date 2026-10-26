@@ -18,3 +18,9 @@ define('SESSION_LIFETIME', 60 * 60 * 12);
 
 // Ustaw na true, gdy aplikacja działa pod HTTPS (zalecane na produkcji)
 define('SESSION_SECURE_COOKIE', false);
+
+// --- Archiwum (opcjonalne — domyślne wartości działają bez zmian) ---
+// Strefa czasowa aplikacji
+// define('APP_TIMEZONE', 'Europe/Warsaw');
+// Godzina, od której zapisywana jest codzienna migawka tabeli
+// define('ARCHIVE_HOUR', 20);

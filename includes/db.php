@@ -6,6 +6,8 @@
 
 require_once __DIR__ . '/../config.php';
 
+date_default_timezone_set(defined('APP_TIMEZONE') ? APP_TIMEZONE : 'Europe/Warsaw');
+
 function get_pdo(): PDO {
     static $pdo = null;
     if ($pdo !== null) return $pdo;

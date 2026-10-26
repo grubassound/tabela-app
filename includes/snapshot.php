@@ -43,6 +43,24 @@ function build_table_data(PDO $pdo): array {
     return ['columns' => $columns, 'rows' => $data];
 }
 
+/**
+ * Automatyczna migawka bez crona: wywoływana przy każdym żądaniu API.
+ * Po ARCHIVE_HOUR zapisuje migawkę na dziś, wcześniej — brakującą migawkę na wczoraj
+ * (stan sprzed pierwszej zmiany dnia, czyli stan z końca poprzedniego dnia).
+ */
+function ensure_daily_archive(PDO $pdo): void {
+    $hour = defined('ARCHIVE_HOUR') ? (int) ARCHIVE_HOUR : 20;
+    $now = new DateTimeImmutable();
+    $due = (int) $now->format('G') >= $hour ? $now : $now->modify('-1 day');
+    $date = $due->format('Y-m-d');
+
+    $stmt = $pdo->prepare('SELECT 1 FROM archives WHERE snapshot_date = ?');
+    $stmt->execute([$date]);
+    if (!$stmt->fetch()) {
+        create_or_replace_daily_archive($pdo, $date);
+    }
+}
+
 function create_or_replace_daily_archive(PDO $pdo, ?string $date = null): void {
     $date = $date ?? date('Y-m-d');
 

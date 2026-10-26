@@ -40,7 +40,7 @@ All permissions are enforced server-side (in PHP), not just hidden in the UI.
   so `index.html` can be opened by anyone with the link, without logging in
   (still fully read-only; editing still requires login).
 - **Daily archives** — a snapshot of the table is saved automatically every day
-  at 8:00 PM via a cron job (see [`cli/daily_archive.php`](#6-daily-archive-cron-job)).
+  at 8:00 PM, with no setup required (see [Daily archive](#6-daily-archive)).
   Admins can browse, preview and delete past snapshots from the Archive tab.
 - **Row dividers** — editors/admins can insert a full-width horizontal
   separator row to group data, independent of the table columns.
@@ -197,16 +197,21 @@ Default admin account (created automatically on the first request):
 
 ---
 
-## 6. Daily archive (cron job)
+## 6. Daily archive
 
-To have the app automatically save a daily snapshot of the table (at 8:00 PM),
-add a cron job that runs the CLI script:
+A snapshot of the whole table is saved automatically once a day — no setup
+needed. On the first request after 8:00 PM the app saves that day's snapshot;
+if nobody used the app after 8:00 PM, the missing snapshot is saved on the
+next request (before any changes are made, so it reflects the end of that
+day). The hour and time zone can be changed in `config.php` (`ARCHIVE_HOUR`,
+`APP_TIMEZONE`, default `Europe/Warsaw`).
+
+Optionally, for a snapshot at exactly 8:00 PM even when nobody is using the
+app, add a cron job that runs the CLI script:
 
 ```bash
 sudo crontab -e -u www-data
 ```
-
-Add this line (adjust the path if you installed the app elsewhere):
 
 ```cron
 0 20 * * * /usr/bin/php /var/www/html/tabela-app/cli/daily_archive.php >> /var/www/html/tabela-app/archive.log 2>&1
