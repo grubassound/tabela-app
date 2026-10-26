@@ -73,6 +73,18 @@
   </tr>
   <tr>
     <td valign="top">
+      <h4>📱 Phone-friendly</h4>
+      A layout tuned for small screens: wide tables scroll sideways, buttons are
+      sized for fingers, and rows can be dragged by touch.
+    </td>
+    <td valign="top">
+      <h4>🛡️ Secure by default</h4>
+      Rate-limited login, security headers, formula-safe exports and permissions
+      checked on every request. See <a href="#-security">Security</a>.
+    </td>
+  </tr>
+  <tr>
+    <td valign="top">
       <h4>📤 Export</h4>
       Download the table as an Excel-friendly CSV (UTF-8, formula-safe) or print a clean PDF.
     </td>
@@ -100,6 +112,16 @@
 | --- | --- | --- |
 | **Liquid** | ![Liquid theme, light](screenshots/theme-liquid-light.png) | ![Liquid theme, dark](screenshots/theme-liquid-dark.png) |
 | **Modern** | ![Modern theme, light](screenshots/theme-modern-light.png) | ![Modern theme, dark](screenshots/theme-modern-dark.png) |
+
+### On your phone
+
+<p align="center">
+  <img src="screenshots/mobile-table.png" alt="Data sheet on a phone, Liquid light theme" width="260">
+  &nbsp;
+  <img src="screenshots/mobile-table-dark.png" alt="Data sheet on a phone, Modern dark theme" width="260">
+  &nbsp;
+  <img src="screenshots/mobile-archive.png" alt="Daily archive on a phone, Liquid dark theme" width="260">
+</p>
 
 ### Admin panel
 
@@ -409,6 +431,5 @@ tabela-app/
 - Cell change history: who changed what, and when.
 - Column sorting and filtering.
 - Drag & drop reordering of columns.
-- A layout tuned for phones.
 
 <p align="center"><sub>Made with ☕ and plain PHP.</sub></p>
