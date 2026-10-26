@@ -63,6 +63,11 @@ function render() {
   const emptyState = document.getElementById('emptyState');
 
   headRow.innerHTML = '';
+  if (canEdit) {
+    const th = document.createElement('th');
+    th.className = 'row-drag-col';
+    headRow.appendChild(th);
+  }
   state.columns.forEach(col => {
     const th = document.createElement('th');
     th.textContent = col.name;
@@ -80,6 +85,8 @@ function render() {
 
   state.rows.forEach(row => {
     const tr = document.createElement('tr');
+    tr.dataset.rowId = row.id;
+    if (canEdit) tr.appendChild(makeDragHandleCell());
 
     if (row.isDivider) {
       const td = document.createElement('td');
@@ -150,6 +157,92 @@ function makeRowActionsCell(rowId, title) {
   btn.addEventListener('click', () => deleteRow(rowId));
   td.appendChild(btn);
   return td;
+}
+
+function makeDragHandleCell() {
+  const td = document.createElement('td');
+  td.className = 'row-drag-col';
+  const handle = document.createElement('span');
+  handle.className = 'row-drag';
+  handle.title = t('dragRowTitle');
+  handle.textContent = '⠿';
+  handle.addEventListener('pointerdown', startRowDrag);
+  td.appendChild(handle);
+  return td;
+}
+
+// --- Przeciąganie wierszy (pointer events: działa myszą i dotykiem) ---
+let rowDrag = null;
+
+function startRowDrag(e) {
+  if (e.button !== 0) return;
+  e.preventDefault();
+  const tr = e.currentTarget.closest('tr');
+  e.currentTarget.setPointerCapture(e.pointerId);
+  e.currentTarget.addEventListener('pointermove', moveRowDrag);
+  e.currentTarget.addEventListener('pointerup', endRowDrag);
+  e.currentTarget.addEventListener('pointercancel', endRowDrag);
+  tr.classList.add('row-dragging');
+  rowDrag = { tr, target: null, after: false };
+}
+
+function moveRowDrag(e) {
+  if (!rowDrag) return;
+  clearDropMarker();
+  const el = document.elementFromPoint(e.clientX, e.clientY);
+  const target = el && el.closest('#bodyRows tr');
+  if (!target || target === rowDrag.tr) {
+    rowDrag.target = null;
+    return;
+  }
+  const rect = target.getBoundingClientRect();
+  rowDrag.target = target;
+  rowDrag.after = e.clientY > rect.top + rect.height / 2;
+  target.classList.add(rowDrag.after ? 'drop-after' : 'drop-before');
+}
+
+function endRowDrag(e) {
+  const handle = e.currentTarget;
+  handle.removeEventListener('pointermove', moveRowDrag);
+  handle.removeEventListener('pointerup', endRowDrag);
+  handle.removeEventListener('pointercancel', endRowDrag);
+  if (!rowDrag) return;
+
+  const { tr, target, after } = rowDrag;
+  rowDrag = null;
+  tr.classList.remove('row-dragging');
+  clearDropMarker();
+  if (e.type === 'pointercancel' || !target) return;
+
+  const draggedId = Number(tr.dataset.rowId);
+  const targetId = Number(target.dataset.rowId);
+  const moved = state.rows.find(r => r.id === draggedId);
+  const rest = state.rows.filter(r => r.id !== draggedId);
+  const targetIndex = rest.findIndex(r => r.id === targetId);
+  rest.splice(after ? targetIndex + 1 : targetIndex, 0, moved);
+
+  if (rest.every((r, i) => r === state.rows[i])) return;
+  state.rows = rest;
+  render();
+  saveRowOrder();
+}
+
+function clearDropMarker() {
+  document.querySelectorAll('#bodyRows .drop-before, #bodyRows .drop-after')
+    .forEach(el => el.classList.remove('drop-before', 'drop-after'));
+}
+
+async function saveRowOrder() {
+  const res = await fetch('api/rows.php', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ order: state.rows.map(r => r.id) })
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    alert(apiErrorMessage(data, 'errReorderRowsFallback'));
+    await loadTable();
+  }
 }
 
 async function saveCell(rowId, columnId, input) {

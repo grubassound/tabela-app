@@ -542,6 +542,24 @@ table.sheet .row-del {
 }
 table.sheet .row-del:hover { color: var(--danger); background: var(--danger-soft); }
 
+table.sheet .row-drag-col { width: 32px; text-align: center; }
+table.sheet .row-drag {
+  display: inline-block;
+  padding: 6px 4px;
+  border-radius: 6px;
+  color: var(--ink-soft);
+  font-size: 16px;
+  line-height: 1;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+table.sheet .row-drag:hover { color: var(--ink); background: var(--accent-soft); }
+table.sheet tr.row-dragging { opacity: .45; }
+table.sheet tr.row-dragging .row-drag { cursor: grabbing; }
+table.sheet tr.drop-before td { box-shadow: inset 0 2px 0 var(--accent); }
+table.sheet tr.drop-after td { box-shadow: inset 0 -2px 0 var(--accent); }
+
 .empty-state {
   padding: 48px 24px;
   text-align: center;
@@ -700,6 +718,7 @@ table.sheet .row-del:hover { color: var(--danger); background: var(--danger-soft
   .topbar,
   .toolbar,
   .row-actions-col,
+  .row-drag-col,
   .modal-overlay {
     display: none !important;
   }

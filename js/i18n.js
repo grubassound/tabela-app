@@ -39,6 +39,7 @@ const translations = {
 
     deleteRowTitle: 'Delete row',
     deleteDividerTitle: 'Delete separator',
+    dragRowTitle: 'Drag to move',
     confirmDeleteRow: 'Delete this row?',
 
     loginTitle: 'Welcome back',
@@ -103,6 +104,9 @@ const translations = {
 
     errSaveCellFallback: 'Failed to save the cell.',
     errDeleteRowFallback: 'Failed to delete the row.',
+    errReorderRowsFallback: 'Failed to save the new row order.',
+    error_INVALID_ORDER: 'Invalid row order.',
+    error_ROWS_CHANGED: 'The table was changed in the meantime. The latest version has been loaded — please try again.',
     errAddRowFallback: 'Failed to add the row.',
     errAddDividerFallback: 'Failed to add the separator.',
     errChangePasswordFallback: 'Failed to change the password.',
@@ -176,6 +180,7 @@ const translations = {
 
     deleteRowTitle: 'Usuń wiersz',
     deleteDividerTitle: 'Usuń separator',
+    dragRowTitle: 'Przeciągnij, aby przenieść',
     confirmDeleteRow: 'Usunąć ten wiersz?',
 
     loginTitle: 'Witaj z powrotem',
@@ -240,6 +245,9 @@ const translations = {
 
     errSaveCellFallback: 'Nie udało się zapisać komórki.',
     errDeleteRowFallback: 'Nie udało się usunąć wiersza.',
+    errReorderRowsFallback: 'Nie udało się zapisać nowej kolejności wierszy.',
+    error_INVALID_ORDER: 'Nieprawidłowa kolejność wierszy.',
+    error_ROWS_CHANGED: 'Tabela została w międzyczasie zmieniona. Wczytano aktualną wersję — spróbuj ponownie.',
     errAddRowFallback: 'Nie udało się dodać wiersza.',
     errAddDividerFallback: 'Nie udało się dodać separatora.',
     errChangePasswordFallback: 'Nie udało się zmienić hasła.',
@@ -313,6 +321,7 @@ const translations = {
 
     deleteRowTitle: 'Rij verwijderen',
     deleteDividerTitle: 'Scheiding verwijderen',
+    dragRowTitle: 'Sleep om te verplaatsen',
     confirmDeleteRow: 'Deze rij verwijderen?',
 
     loginTitle: 'Welkom terug',
@@ -377,6 +386,9 @@ const translations = {
 
     errSaveCellFallback: 'Kon de cel niet opslaan.',
     errDeleteRowFallback: 'Kon de rij niet verwijderen.',
+    errReorderRowsFallback: 'Kon de nieuwe rijvolgorde niet opslaan.',
+    error_INVALID_ORDER: 'Ongeldige rijvolgorde.',
+    error_ROWS_CHANGED: 'De tabel is intussen gewijzigd. De nieuwste versie is geladen — probeer het opnieuw.',
     errAddRowFallback: 'Kon de rij niet toevoegen.',
     errAddDividerFallback: 'Kon de scheiding niet toevoegen.',
     errChangePasswordFallback: 'Kon het wachtwoord niet wijzigen.',
