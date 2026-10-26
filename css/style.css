@@ -510,6 +510,14 @@ select.cell:disabled {
   -webkit-text-fill-color: var(--ink);
 }
 
+/* Native dropdown popups inherit the select's text color but not its
+   (transparent) background, so give options an opaque themed background. */
+select option,
+select optgroup {
+  background-color: var(--bg-base);
+  color: var(--ink);
+}
+
 table.sheet td .cell:focus {
   outline: 2px solid var(--accent);
   outline-offset: -2px;
